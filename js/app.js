@@ -1,0 +1,378 @@
+/**
+ * ThaparPulse - Core Application Controller
+ * Handles routing, modals, toasts, global command palette, and profile state
+ */
+
+const App = {
+  currentTab: 'dashboard',
+  tickerInterval: null,
+
+  init() {
+    this.initProfile();
+    this.initNavigation();
+    this.initCommandPalette();
+    this.initModals();
+    this.initTicker();
+    this.initTheme();
+
+    // Initialize all sub-modules
+    if (window.AttendanceModule) window.AttendanceModule.init();
+    if (window.RideshareModule) window.RideshareModule.init();
+    if (window.MessModule) window.MessModule.init();
+    if (window.AcademicModule) window.AcademicModule.init();
+    if (window.MarketplaceModule) window.MarketplaceModule.init();
+    if (window.SocietiesModule) window.SocietiesModule.init();
+    if (window.FeedModule) window.FeedModule.init();
+
+    // Show initial welcome toast
+    setTimeout(() => {
+      this.showToast('Welcome to ThaparPulse - Your TIET Campus Companion ⚡', 'info');
+    }, 600);
+  },
+
+  initProfile() {
+    const savedProfile = localStorage.getItem('thapar_user_profile');
+    if (savedProfile) {
+      try {
+        window.THAPAR_DATA.userProfile = JSON.parse(savedProfile);
+      } catch (e) {}
+    }
+
+    this.updateProfileUI();
+  },
+
+  updateProfileUI() {
+    const p = window.THAPAR_DATA.userProfile;
+    const nameEls = document.querySelectorAll('.profile-name-val');
+    const rollEls = document.querySelectorAll('.profile-roll-val');
+    const hostelEls = document.querySelectorAll('.profile-hostel-val');
+
+    nameEls.forEach(el => el.innerText = p.name);
+    rollEls.forEach(el => el.innerText = `${p.rollNumber} • ${p.branch}`);
+    hostelEls.forEach(el => el.innerText = p.hostel);
+
+    // Sync profile form values if modal open
+    const nameInput = document.getElementById('profile-name-input');
+    const rollInput = document.getElementById('profile-roll-input');
+    const branchInput = document.getElementById('profile-branch-input');
+    const hostelInput = document.getElementById('profile-hostel-input');
+    const targetInput = document.getElementById('profile-target-input');
+
+    if (nameInput) nameInput.value = p.name;
+    if (rollInput) rollInput.value = p.rollNumber;
+    if (branchInput) branchInput.value = p.branch;
+    if (hostelInput) hostelInput.value = p.hostel;
+    if (targetInput) targetInput.value = p.targetAttendance || 75;
+  },
+
+  saveProfile(updated) {
+    window.THAPAR_DATA.userProfile = {
+      ...window.THAPAR_DATA.userProfile,
+      ...updated
+    };
+    localStorage.setItem('thapar_user_profile', JSON.stringify(window.THAPAR_DATA.userProfile));
+    this.updateProfileUI();
+
+    if (updated.targetAttendance && window.AttendanceModule) {
+      window.AttendanceModule.setTarget(parseInt(updated.targetAttendance, 10));
+    }
+
+    this.showToast('Profile updated successfully!', 'success');
+  },
+
+  initNavigation() {
+    // Desktop & Mobile Tab click handlers
+    document.querySelectorAll('[data-tab-target]').forEach(el => {
+      el.addEventListener('click', (e) => {
+        const target = el.dataset.tabTarget;
+        this.switchTab(target);
+        
+        // Close mobile drawer if open
+        document.querySelector('.app-sidebar').classList.remove('open');
+      });
+    });
+
+    // Mobile sidebar toggle button
+    const menuBtn = document.getElementById('mobile-menu-btn');
+    if (menuBtn) {
+      menuBtn.addEventListener('click', () => {
+        document.querySelector('.app-sidebar').classList.toggle('open');
+      });
+    }
+  },
+
+  switchTab(tabId) {
+    this.currentTab = tabId;
+
+    // Update active nav items
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.classList.toggle('active', item.dataset.tabTarget === tabId);
+    });
+
+    document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.tabTarget === tabId);
+    });
+
+    // Update active view content
+    document.querySelectorAll('.tab-view').forEach(view => {
+      view.classList.toggle('active', view.id === `tab-${tabId}`);
+    });
+
+    // Update header title
+    const titles = {
+      dashboard: { title: "Attendance & Safe Bunk Forecaster", sub: "The 75% Rule Protector for Webkiosk" },
+      rideshare: { title: "Thapar RideShare & Cab Matcher", sub: "Split travel to Rajpura, Chandigarh & Delhi" },
+      mess: { title: "Hostel Mess & Campus Food Court", sub: "Live daily menus, edible votes & COS spots" },
+      vault: { title: "Academic Vault (PYQs & Notes)", sub: "MST / EST previous year papers & study cheat sheets" },
+      bazaar: { title: "TIET Campus Bazaar & Lost-Found", sub: "Buy/sell cycles, appliances, drafters & report items" },
+      societies: { title: "Societies & Events Radar", sub: "CCS, OWASP, MLSC, Frosh recruitments & Saturnalia" },
+      feed: { title: "Anonymous Campus Feed & Senior Advice", sub: "Peer wisdom, placement hacks & hostel banter" },
+      cgpa: { title: "Target CGPA & Relative Grade Simulator", sub: "Simulate EST/MST scores to reach your dream CGPA" }
+    };
+
+    const headerTitleEl = document.getElementById('page-header-title');
+    const headerSubEl = document.getElementById('page-header-sub');
+
+    if (headerTitleEl && titles[tabId]) {
+      headerTitleEl.innerText = titles[tabId].title;
+    }
+    if (headerSubEl && titles[tabId]) {
+      headerSubEl.innerText = titles[tabId].sub;
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  },
+
+  initCommandPalette() {
+    // Listen for Ctrl+K or Cmd+K
+    window.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        this.openModal('modal-command-palette');
+        const input = document.getElementById('cmd-search-input');
+        if (input) setTimeout(() => input.focus(), 100);
+      }
+    });
+
+    const cmdInput = document.getElementById('cmd-search-input');
+    if (cmdInput) {
+      cmdInput.addEventListener('input', (e) => {
+        this.filterCommandPalette(e.target.value);
+      });
+    }
+
+    const headerSearchTrigger = document.getElementById('global-search-trigger');
+    if (headerSearchTrigger) {
+      headerSearchTrigger.addEventListener('click', () => {
+        this.openModal('modal-command-palette');
+        const input = document.getElementById('cmd-search-input');
+        if (input) setTimeout(() => input.focus(), 100);
+      });
+    }
+  },
+
+  filterCommandPalette(query) {
+    const list = document.getElementById('cmd-results-list');
+    if (!list) return;
+
+    const q = query.toLowerCase().trim();
+    const actions = [
+      { name: "Attendance & Safe Bunk Forecaster", tab: "dashboard", icon: "📊", desc: "Check if you can bunk tomorrow's 8 AM lab" },
+      { name: "Find / Post Cab to Rajpura Station", tab: "rideshare", icon: "🚗", desc: "Split taxi fare for Vande Bharat / Shatabdi" },
+      { name: "Find Cab to Chandigarh / Airport", tab: "rideshare", icon: "✈️", desc: "Weekend trips to Elante Mall or IXC Airport" },
+      { name: "Hostel J / M / H Mess Menu", tab: "mess", icon: "🍛", desc: "Check today's lunch/dinner & vote if it's edible" },
+      { name: "COS / Nirvana Food Kiosks Numbers", tab: "mess", icon: "🍔", desc: "Late night Maggi, Rolls Nation & Frappe" },
+      { name: "Download MST / EST PYQs", tab: "vault", icon: "📚", desc: "UCS415, UMA010, UTA018 question papers" },
+      { name: "Buy / Sell Cycles (Hero Sprint)", tab: "bazaar", icon: "🚲", desc: "Campus bicycle resale & ED drafters" },
+      { name: "Lost & Found Items Board", tab: "bazaar", icon: "🔍", desc: "Report or claim lost earphones / Casio calculators" },
+      { name: "CCS / OWASP / MLSC Recruitments", tab: "societies", icon: "⚡", desc: "Society test rounds & Saturnalia volunteer drive" },
+      { name: "Senior Advice on Placements", tab: "feed", icon: "💡", desc: "Placement & DSA interview roadmaps" },
+      { name: "Target CGPA Simulator", tab: "cgpa", icon: "🎯", desc: "Calculate MST/EST marks for 8.5+ CGPA" }
+    ];
+
+    const filtered = actions.filter(a => a.name.toLowerCase().includes(q) || a.desc.toLowerCase().includes(q));
+
+    list.innerHTML = filtered.map(a => `
+      <div class="user-quick-profile" onclick="App.executeCommand('${a.tab}')" style="margin-bottom: 0.5rem; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <span style="font-size: 1.25rem;">${a.icon}</span>
+          <div>
+            <h4 style="font-size: 0.9rem; font-weight: 700;">${a.name}</h4>
+            <p style="font-size: 0.75rem; color: var(--text-muted);">${a.desc}</p>
+          </div>
+        </div>
+        <span class="search-kbd">Enter ➔</span>
+      </div>
+    `).join('');
+  },
+
+  executeCommand(tabId) {
+    this.closeModal('modal-command-palette');
+    this.switchTab(tabId);
+  },
+
+  initModals() {
+    // Backdrop click close
+    document.querySelectorAll('.modal-backdrop').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.remove('active');
+        }
+      });
+    });
+
+    // Close buttons
+    document.querySelectorAll('.modal-close-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modal = btn.closest('.modal-backdrop');
+        if (modal) modal.classList.remove('active');
+      });
+    });
+
+    // Escape key
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-backdrop.active').forEach(m => m.classList.remove('active'));
+      }
+    });
+
+    // Profile form listener
+    const profileForm = document.getElementById('form-user-profile');
+    if (profileForm) {
+      profileForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        this.saveProfile({
+          name: document.getElementById('profile-name-input').value,
+          rollNumber: document.getElementById('profile-roll-input').value,
+          branch: document.getElementById('profile-branch-input').value,
+          hostel: document.getElementById('profile-hostel-input').value,
+          targetAttendance: parseInt(document.getElementById('profile-target-input').value, 10) || 75
+        });
+        this.closeModal('modal-user-profile');
+      });
+    }
+  },
+
+  openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.classList.add('active');
+  },
+
+  closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.classList.remove('active');
+  },
+
+  showToast(message, type = 'info') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    let icon = 'ℹ️';
+    if (type === 'success') icon = '✅';
+    if (type === 'error') icon = '🚨';
+
+    toast.innerHTML = `
+      <span>${icon}</span>
+      <span>${message}</span>
+    `;
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(100%)';
+      toast.style.transition = 'all 0.3s ease';
+      setTimeout(() => toast.remove(), 300);
+    }, 3800);
+  },
+
+  initTicker() {
+    const tickerEl = document.getElementById('campus-ticker-content');
+    if (!tickerEl) return;
+
+    const alerts = [
+      "🔥 <strong>CCS HackTU Registrations</strong> are now live for 2026!",
+      "🚨 <strong>Webkiosk Attendance Warning:</strong> Ensure all subjects are >=75% before MST-1 hall tickets release.",
+      "🚗 <strong>Cab Pool Alert:</strong> 3 seats open for Rajpura Junction (Sunday Vande Bharat connection).",
+      "🍛 <strong>Hostel J Mess Special:</strong> Friday slow-cooked Dal Makhani & Gulab Jamun tonight!",
+      "📚 <strong>Academic Vault:</strong> Added 2025 Solved UCS415 (Algorithms) EST Paper with full solutions."
+    ];
+
+    let current = 0;
+    setInterval(() => {
+      current = (current + 1) % alerts.length;
+      tickerEl.style.opacity = '0';
+      setTimeout(() => {
+        tickerEl.innerHTML = alerts[current];
+        tickerEl.style.opacity = '1';
+      }, 300);
+    }, 6000);
+  },
+
+  initTheme() {
+    const savedTheme = localStorage.getItem('thapar_theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
+    const toggleBtn = document.getElementById('theme-toggle-btn');
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', () => {
+        const curr = document.documentElement.getAttribute('data-theme');
+        const next = curr === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('thapar_theme', next);
+        this.showToast(`Switched to ${next} mode`, 'info');
+      });
+    }
+  },
+
+  // CGPA & Target Grade Simulator Logic
+  calculateTargetCGPA() {
+    const currCgpa = parseFloat(document.getElementById('cgpa-curr-input').value) || 7.5;
+    const completedCredits = parseFloat(document.getElementById('cgpa-credits-input').value) || 60;
+    const semCredits = parseFloat(document.getElementById('cgpa-sem-credits-input').value) || 20;
+    const targetCgpa = parseFloat(document.getElementById('cgpa-target-input').value) || 8.5;
+
+    // Formula: Required SGPA = (TargetCGPA * (completed + sem) - (CurrCGPA * completed)) / sem
+    const requiredSgpa = ((targetCgpa * (completedCredits + semCredits)) - (currCgpa * completedCredits)) / semCredits;
+    const resultBox = document.getElementById('cgpa-result-display');
+
+    if (!resultBox) return;
+
+    if (requiredSgpa > 10.0) {
+      resultBox.innerHTML = `
+        <div style="background: rgba(244, 63, 94, 0.15); border: 1px solid var(--danger-rose); border-radius: var(--radius-md); padding: 1.25rem; text-align: center;">
+          <h3 style="color: #fb7185; font-size: 1.2rem;">Mathematically Impossible in 1 Semester</h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.35rem;">You need a SGPA of <strong>${requiredSgpa.toFixed(2)}</strong> (Max is 10.0). Try spreading your target CGPA over 2-3 semesters!</p>
+        </div>
+      `;
+    } else if (requiredSgpa <= 0) {
+      resultBox.innerHTML = `
+        <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid var(--safe-emerald); border-radius: var(--radius-md); padding: 1.25rem; text-align: center;">
+          <h3 style="color: #34d399; font-size: 1.2rem;">You're Already Above Target! 🎉</h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.35rem;">Keep steady and you'll easily graduate above ${targetCgpa} CGPA.</p>
+        </div>
+      `;
+    } else {
+      resultBox.innerHTML = `
+        <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid var(--safe-emerald); border-radius: var(--radius-md); padding: 1.25rem; text-align: center;">
+          <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Required Semester SGPA</span>
+          <h2 style="font-size: 2.2rem; color: #34d399; font-family: var(--font-heading); margin: 0.25rem 0;">${requiredSgpa.toFixed(2)} SGPA</h2>
+          <p style="font-size: 0.85rem; color: var(--text-secondary);">To elevate your cumulative CGPA from <strong>${currCgpa}</strong> to <strong>${targetCgpa}</strong> this semester.</p>
+          <div style="margin-top: 0.75rem; font-size: 0.78rem; color: var(--tiet-gold);">
+            💡 Target at least ${Math.ceil(requiredSgpa >= 9.0 ? semCredits * 0.7 : semCredits * 0.5)} credits in 'A' / 'A+' grades in EST examinations.
+          </div>
+        </div>
+      `;
+    }
+  }
+};
+
+window.App = App;
+
+// Bootstrap on DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+  App.init();
+});

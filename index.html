@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ThaparPulse | TIET Patiala Campus Operating System</title>
+  <meta name="description" content="All-in-one student life platform for Thapar University (TIET Patiala) - 75% attendance predictor, Rajpura/Chandigarh cab pooling, hostel mess menus, past MST/EST papers, campus marketplace, and society recruitments.">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/components.css">
+
+  <!-- Favicon Emoji -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔴</text></svg>">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- ====================================================================
+         1. SIDEBAR NAVIGATION
+         ==================================================================== -->
+    <aside class="app-sidebar" id="app-sidebar">
+      <!-- Brand Logo -->
+      <div class="brand-section">
+        <div class="brand-logo-badge">TP</div>
+        <div class="brand-text">
+          <h1>ThaparPulse</h1>
+          <p>TIET Patiala • OS</p>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="nav-menu">
+        <span class="nav-label">Academic & Daily</span>
+        
+        <div class="nav-item active" data-tab-target="dashboard" id="nav-dashboard">
+          <span class="nav-icon">📊</span>
+          <span>Attendance & Bunk</span>
+          <span class="nav-badge live">75% Rule</span>
+        </div>
+
+        <div class="nav-item" data-tab-target="rideshare" id="nav-rideshare">
+          <span class="nav-icon">🚗</span>
+          <span>RideShare & Cabs</span>
+          <span class="nav-badge">Pool</span>
+        </div>
+
+        <div class="nav-item" data-tab-target="mess" id="nav-mess">
+          <span class="nav-icon">🍛</span>
+          <span>Mess Menu & Food</span>
+          <span class="nav-badge">Live</span>
+        </div>
+
+        <div class="nav-item" data-tab-target="vault" id="nav-vault">
+          <span class="nav-icon">📚</span>
+          <span>Academic PYQs Vault</span>
+        </div>
+
+        <div class="nav-item" data-tab-target="cgpa" id="nav-cgpa">
+          <span class="nav-icon">🎯</span>
+          <span>CGPA Target Calc</span>
+        </div>
+
+        <span class="nav-label" style="margin-top: 0.75rem;">Campus Life & Community</span>
+
+        <div class="nav-item" data-tab-target="bazaar" id="nav-bazaar">
+          <span class="nav-icon">🛍️</span>
+          <span>Campus Bazaar & LF</span>
+        </div>
+
+        <div class="nav-item" data-tab-target="societies" id="nav-societies">
+          <span class="nav-icon">⚡</span>
+          <span>Societies & Fests</span>
+          <span class="nav-badge">Hiring</span>
+        </div>
+
+        <div class="nav-item" data-tab-target="feed" id="nav-feed">
+          <span class="nav-icon">💬</span>
+          <span>Thapar Advice Feed</span>
+        </div>
+      </nav>
+
+      <!-- Sidebar Footer / User Profile -->
+      <div class="sidebar-footer">
+        <div class="user-quick-profile" onclick="App.openModal('modal-user-profile')" title="Edit Profile & Target Attendance">
+          <div class="user-avatar">AS</div>
+          <div class="user-info">
+            <h4 class="user-name profile-name-val">Aarav Sharma</h4>
+            <p class="user-roll profile-roll-val">102203456 • COE</p>
+          </div>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">⚙️</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ====================================================================
+         2. MAIN VIEWPORT WRAPPER
+         ==================================================================== -->
+    <main class="main-wrapper">
+      
+      <!-- Top Sticky Header -->
+      <header class="top-header">
+        <div class="header-left">
+          <button class="menu-toggle-btn" id="mobile-menu-btn" aria-label="Toggle menu">☰</button>
+          <div class="page-title-box">
+            <h2 id="page-header-title">Attendance & Safe Bunk Forecaster</h2>
+            <p id="page-header-sub">The 75% Rule Protector for Webkiosk</p>
+          </div>
+        </div>
+
+        <!-- Global Search / Command Palette Trigger -->
+        <div class="header-search" id="global-search-trigger">
+          <div class="search-input-wrapper" style="cursor: pointer;">
+            <span>🔍</span>
+            <input type="text" placeholder="Search subjects, cabs, mess, past papers..." readonly style="cursor: pointer;">
+            <span class="search-kbd">Ctrl K</span>
+          </div>
+        </div>
+
+        <!-- Header Actions -->
+        <div class="header-right">
+          <button class="header-action-btn" id="theme-toggle-btn" title="Toggle Dark/Light Mode">
+            <span>🌓</span>
+          </button>
+
+          <button class="header-action-btn primary" onclick="App.openModal('modal-add-subject')">
+            <span>+</span> Add Subject
+          </button>
+        </div>
+      </header>
+
+      <!-- Live Campus Alerts Ticker -->
+      <div class="campus-live-ticker">
+        <span class="ticker-pill">Campus Pulse</span>
+        <div class="ticker-text" id="campus-ticker-content">
+          🔥 <strong>CCS HackTU Registrations</strong> are now live for 2026!
+        </div>
+      </div>
+
+      <!-- Main Content Container -->
+      <div class="content-body">
+        
+        <!-- ================================================================
+             TAB 1: ATTENDANCE & BUNK FORECASTER (DASHBOARD)
+             ================================================================ -->
+        <section class="tab-view active" id="tab-dashboard">
+          
+          <!-- Hero Overview -->
+          <div class="dashboard-hero">
+            <!-- Left Stat Card -->
+            <div class="stat-overview-card">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                  <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--tiet-gold); font-weight: 700;">Webkiosk Status Shield</span>
+                  <h2 style="font-size: 1.5rem; font-weight: 800; margin-top: 0.2rem;">Semester 4 Attendance Forecast</h2>
+                  <p style="font-size: 0.82rem; color: var(--text-secondary);">Target Threshold: <strong style="color: #fff;">75% Minimum for EST/MST</strong></p>
+                </div>
+                
+                <button class="header-action-btn" onclick="AttendanceModule.resetDefaults()" style="padding: 0.35rem 0.75rem; font-size: 0.75rem;">
+                  ↻ Reset Sample
+                </button>
+              </div>
+
+              <!-- Metrics -->
+              <div class="stat-metrics-grid">
+                <div class="metric-box">
+                  <span class="metric-label">Overall Attendance</span>
+                  <span class="metric-value safe" id="metric-overall-pct">82.4%</span>
+                </div>
+                <div class="metric-box">
+                  <span class="metric-label">Attended / Total</span>
+                  <span class="metric-value" id="metric-attended-fraction" style="font-size: 1.25rem;">136 / 176</span>
+                </div>
+                <div class="metric-box">
+                  <span class="metric-label">Safe Subjects</span>
+                  <span class="metric-value safe" id="metric-safe-count">5</span>
+                </div>
+                <div class="metric-box">
+                  <span class="metric-label">Critical (<75%)</span>
+                  <span class="metric-value danger" id="metric-critical-count">1</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Circular Radial Meter Card -->
+            <div class="card" style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+              <div class="progress-circle-wrap">
+                <svg>
+                  <circle class="progress-bg" cx="60" cy="60" r="50"></circle>
+                  <circle class="progress-bar" id="attendance-ring-progress" cx="60" cy="60" r="50"></circle>
+                </svg>
+                <div class="progress-text">
+                  <div class="progress-percentage" id="attendance-ring-text">82.4%</div>
+                  <div class="progress-caption">Aggregate</div>
+                </div>
+              </div>
+
+              <div style="margin-top: 1rem; width: 100%;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 0.35rem;">
+                  <span style="color: var(--text-muted);">Cutoff: <strong>75%</strong></span>
+                  <span style="color: var(--safe-emerald); font-weight: 700;">Safe Zone (+7.4%)</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.06); height: 6px; border-radius: var(--radius-full); overflow: hidden;">
+                  <div style="background: linear-gradient(90deg, var(--danger-rose), var(--warning-amber), var(--safe-emerald)); width: 100%; height: 100%;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section Heading -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div>
+              <h3 style="font-size: 1.2rem; font-weight: 700;">Course Bunk Forecast</h3>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">Real-time calculations based on TIET Webkiosk policy</p>
+            </div>
+            
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <span style="font-size: 0.78rem; color: var(--text-muted);">Target:</span>
+              <button class="filter-pill active" onclick="AttendanceModule.setTarget(75)">75%</button>
+              <button class="filter-pill" onclick="AttendanceModule.setTarget(80)">80%</button>
+              <button class="filter-pill" onclick="AttendanceModule.setTarget(85)">85%</button>
+            </div>
+          </div>
+
+          <!-- Subject Cards Grid -->
+          <div class="attendance-grid" id="attendance-subjects-grid">
+            <!-- Rendered via attendance.js -->
+          </div>
+
+        </section>
+
+
+        <!-- ================================================================
+             TAB 2: THAPAR RIDESHARE & CAB POOLING
+             ================================================================ -->
+        <section class="tab-view" id="tab-rideshare">
+          
+          <div class="card" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(17, 23, 38, 0.9)); border-color: rgba(14, 165, 233, 0.3);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+              <div>
+                <h3 style="font-size: 1.3rem; font-weight: 800;">Split Cabs & Save Money 🚖</h3>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.2rem;">
+                  Daily cab shares to Rajpura Junction (Shatabdi/Vande Bharat), Chandigarh (Elante/Airport), and Delhi.
+                </p>
+              </div>
+              <button class="header-action-btn primary" onclick="App.openModal('modal-post-ride')">
+                <span>+</span> Post a Cab Pool
+              </button>
+            </div>
+          </div>
+
+          <!-- Filters -->
+          <div class="filter-pills">
+            <button class="filter-pill active" onclick="RideshareModule.setFilter('all')">All Destinations</button>
+            <button class="filter-pill" onclick="RideshareModule.setFilter('rajpura')">🚆 Rajpura Railway Station</button>
+            <button class="filter-pill" onclick="RideshareModule.setFilter('chandigarh')">✈️ Chandigarh / Elante / IXC</button>
+            <button class="filter-pill" onclick="RideshareModule.setFilter('delhi')">🏛️ Delhi (IGI / Kashmere Gate)</button>
+            <button class="filter-pill" onclick="RideshareModule.setFilter('patiala')">🚌 Patiala Bus Stand / Cantt</button>
+            <button class="filter-pill" id="female-filter-pill" onclick="this.classList.toggle('active'); RideshareModule.toggleFemaleOnly(this.classList.contains('active'))" style="border-color: #f472b6;">
+              👩 Female Riders Only
+            </button>
+          </div>
+
+          <!-- Rides Grid -->
+          <div class="rideshare-grid" id="rideshare-listings-grid">
+            <!-- Rendered via rideshare.js -->
+          </div>
+
+        </section>
+
+
+        <!-- ================================================================
+             TAB 3: HOSTEL MESS MENU & CAMPUS FOOD
+             ================================================================ -->
+        <section class="tab-view" id="tab-mess">
+          
+          <!-- Hostel Selection Tabs -->
+          <div class="hostel-tabs">
+            <button class="hostel-tab-btn active" data-hostel="Hostel J" onclick="MessModule.setHostel('Hostel J')">Hostel J (Freshers)</button>
+            <button class="hostel-tab-btn" data-hostel="Hostel M" onclick="MessModule.setHostel('Hostel M')">Hostel M (Sophomores)</button>
+            <button class="hostel-tab-btn" data-hostel="Hostel H" onclick="MessModule.setHostel('Hostel H')">Hostel H (Seniors)</button>
+            <button class="hostel-tab-btn" data-hostel="Hostel E (Girls)" onclick="MessModule.setHostel('Hostel E (Girls)')">Hostel E & Girls Hostels</button>
+          </div>
+
+          <!-- Day Filter Pills -->
+          <div class="filter-pills" style="margin-bottom: 1.25rem;">
+            <button class="filter-pill day-pill-btn active" data-day="Monday" onclick="MessModule.setDay('Monday')">Mon</button>
+            <button class="filter-pill day-pill-btn" data-day="Tuesday" onclick="MessModule.setDay('Tuesday')">Tue</button>
+            <button class="filter-pill day-pill-btn" data-day="Wednesday" onclick="MessModule.setDay('Wednesday')">Wed</button>
+            <button class="filter-pill day-pill-btn" data-day="Thursday" onclick="MessModule.setDay('Thursday')">Thu</button>
+            <button class="filter-pill day-pill-btn" data-day="Friday" onclick="MessModule.setDay('Friday')">Fri</button>
+            <button class="filter-pill day-pill-btn" data-day="Saturday" onclick="MessModule.setDay('Saturday')">Sat</button>
+            <button class="filter-pill day-pill-btn" data-day="Sunday" onclick="MessModule.setDay('Sunday')">Sun</button>
+          </div>
+
+          <!-- Meal Breakdown Cards Grid -->
+          <div class="meal-cards-grid" id="mess-meals-container">
+            <!-- Rendered via mess.js -->
+          </div>
+
+          <!-- Late Night Food Spots / COS / Nirvana -->
+          <div style="margin-top: 2rem;">
+            <div class="card-header">
+              <div class="card-title-group">
+                <div class="card-icon-badge gold">🍔</div>
+                <div>
+                  <h3 class="card-title">Campus Hangouts & Late Night Delivery</h3>
+                  <p class="card-subtitle">COS, Nirvana, G-Block & Jaggi live timings & contact numbers</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="food-spots-grid" id="food-spots-container">
+              <!-- Rendered via mess.js -->
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- ================================================================
+             TAB 4: ACADEMIC VAULT (PYQS & TOPPER NOTES)
+             ================================================================ -->
+        <section class="tab-view" id="tab-vault">
+          
+          <div class="card" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(17, 23, 38, 0.9)); border-color: rgba(245, 158, 11, 0.3);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+              <div>
+                <h3 style="font-size: 1.3rem; font-weight: 800;">MST & EST Question Paper Archive 📖</h3>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.2rem;">
+                  Handwritten topper notes, past 5 years MST/EST question papers, and lab manuals.
+                </p>
+              </div>
+              <button class="header-action-btn primary" onclick="App.openModal('modal-contrib-pyq')">
+                <span>+</span> Contribute PYQ / Notes
+              </button>
+            </div>
+          </div>
+
+          <!-- Search & Filter Row -->
+          <div class="vault-search-box">
+            <div class="search-input-wrapper" style="flex: 1; min-width: 260px;">
+              <span>🔍</span>
+              <input type="text" id="vault-search-input" placeholder="Search by course code (e.g., UCS415, UMA010) or topic...">
+            </div>
+
+            <div class="filter-pills" style="margin-bottom: 0;">
+              <button class="filter-pill vault-type-btn active" data-type="all" onclick="AcademicModule.setTypeFilter('all')">All Materials</button>
+              <button class="filter-pill vault-type-btn" data-type="MST" onclick="AcademicModule.setTypeFilter('MST')">MST Papers</button>
+              <button class="filter-pill vault-type-btn" data-type="EST" onclick="AcademicModule.setTypeFilter('EST')">EST Papers</button>
+              <button class="filter-pill vault-type-btn" data-type="Notes" onclick="AcademicModule.setTypeFilter('Notes')">Topper Notes</button>
+            </div>
+
+            <div class="filter-pills" style="margin-bottom: 0;">
+              <button class="filter-pill vault-branch-btn active" data-branch="all" onclick="AcademicModule.setBranchFilter('all')">All Branches</button>
+              <button class="filter-pill vault-branch-btn" data-branch="coe" onclick="AcademicModule.setBranchFilter('coe')">COE / COPC</button>
+              <button class="filter-pill vault-branch-btn" data-branch="common" onclick="AcademicModule.setBranchFilter('common')">1st Year Common</button>
+            </div>
+          </div>
+
+          <!-- Vault Grid -->
+          <div class="vault-grid" id="academic-vault-grid">
+            <!-- Rendered via academic.js -->
+          </div>
+
+        </section>
+
+
+        <!-- ================================================================
+             TAB 5: CAMPUS BAZAAR & LOST-FOUND
+             ================================================================ -->
+        <section class="tab-view" id="tab-bazaar">
+          
+          <!-- Top Subtab Switcher -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+            <div class="hostel-tabs" style="margin-bottom: 0;">
+              <button class="hostel-tab-btn bazaar-main-tab active" data-tab="market" onclick="MarketplaceModule.setTab('market')">🛍️ Campus Marketplace</button>
+              <button class="hostel-tab-btn bazaar-main-tab" data-tab="lostfound" onclick="MarketplaceModule.setTab('lostfound')">🔍 Lost & Found Board</button>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="header-action-btn primary" onclick="App.openModal('modal-post-bazaar')">+ Sell Item</button>
+              <button class="header-action-btn" onclick="App.openModal('modal-post-lostfound')">🚨 Report Lost/Found</button>
+            </div>
+          </div>
+
+          <!-- Marketplace View -->
+          <div id="bazaar-market-view">
+            <!-- Category Filters -->
+            <div class="filter-pills">
+              <button class="filter-pill bazaar-cat-btn active" data-cat="all" onclick="MarketplaceModule.setCategory('all')">All Items</button>
+              <button class="filter-pill bazaar-cat-btn" data-cat="Bicycles" onclick="MarketplaceModule.setCategory('Bicycles')">🚲 Bicycles</button>
+              <button class="filter-pill bazaar-cat-btn" data-cat="Engineering Tools" onclick="MarketplaceModule.setCategory('Engineering Tools')">📐 Drafters & Tools</button>
+              <button class="filter-pill bazaar-cat-btn" data-cat="Room Appliances" onclick="MarketplaceModule.setCategory('Room Appliances')">🫖 Kettles & Coolers</button>
+              <button class="filter-pill bazaar-cat-btn" data-cat="Apparel & Books" onclick="MarketplaceModule.setCategory('Apparel & Books')">🥼 Lab Coats & Books</button>
+            </div>
+
+            <div class="bazaar-grid" id="bazaar-items-grid">
+              <!-- Rendered via marketplace.js -->
+            </div>
+          </div>
+
+          <!-- Lost & Found View -->
+          <div id="bazaar-lostfound-view" style="display: none;">
+            <div class="attendance-grid" id="lostfound-items-grid">
+              <!-- Rendered via marketplace.js -->
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- ================================================================
+             TAB 6: SOCIETIES & EVENTS RADAR
+             ================================================================ -->
+        <section class="tab-view" id="tab-societies">
+          
+          <div class="card" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, rgba(225, 29, 72, 0.15), rgba(17, 23, 38, 0.9)); border-color: var(--border-crimson);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+              <div>
+                <h3 style="font-size: 1.3rem; font-weight: 800;">Societies, Chapters & Fest Core 🌟</h3>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.2rem;">
+                  Track active recruitments, interview rounds, test links, and Saturnalia/Urja committees.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filter Pills -->
+          <div class="filter-pills">
+            <button class="filter-pill soc-cat-btn active" data-cat="all" onclick="SocietiesModule.setCategory('all')">All Societies</button>
+            <button class="filter-pill soc-cat-btn" data-cat="tech" onclick="SocietiesModule.setCategory('tech')">💻 Technical & Coding (CCS, OWASP, MLSC)</button>
+            <button class="filter-pill soc-cat-btn" data-cat="cultural" onclick="SocietiesModule.setCategory('cultural')">🎉 Mega Events & Induction (Frosh, Saturnalia, EDC)</button>
+          </div>
+
+          <!-- Societies Grid -->
+          <div class="societies-grid" id="societies-radar-grid">
+            <!-- Rendered via societies.js -->
+          </div>
+
+        </section>
+
+
+        <!-- ================================================================
+             TAB 7: ANONYMOUS CAMPUS FEED & SENIOR ADVICE
+             ================================================================ -->
+        <section class="tab-view" id="tab-feed">
+          
+          <div class="feed-container">
+            
+            <!-- Create Post Card -->
+            <div class="create-post-card">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                  <div class="post-avatar-anon">🎓</div>
+                  <div>
+                    <h4 style="font-size: 0.95rem; font-weight: 700;">Share Advice or Ask Anything Anonymously</h4>
+                    <p style="font-size: 0.75rem; color: var(--text-muted);">No login needed • Safe peer discussion</p>
+                  </div>
+                </div>
+
+                <button class="header-action-btn primary" onclick="App.openModal('modal-create-post')">
+                  + Create Post
+                </button>
+              </div>
+            </div>
+
+            <!-- Feed Tag Filter -->
+            <div class="filter-pills" style="margin-bottom: 0.5rem;">
+              <button class="filter-pill feed-tag-btn active" data-tag="all" onclick="FeedModule.setTag('all')">All Posts</button>
+              <button class="filter-pill feed-tag-btn" data-tag="Placement Prep" onclick="FeedModule.setTag('Placement Prep')">💼 Placement Prep</button>
+              <button class="filter-pill feed-tag-btn" data-tag="Hostel Banter" onclick="FeedModule.setTag('Hostel Banter')">🏠 Hostel Life</button>
+              <button class="filter-pill feed-tag-btn" data-tag="Academic Advice" onclick="FeedModule.setTag('Academic Advice')">📖 Academic Tips</button>
+            </div>
+
+            <!-- Feed Posts List -->
+            <div id="campus-feed-posts-list" style="display: flex; flex-direction: column; gap: 1rem;">
+              <!-- Rendered via feed.js -->
+            </div>
+
+          </div>
+
+        </section>
+
+
+        <!-- ================================================================
+             TAB 8: TARGET CGPA & RELATIVE GRADE SIMULATOR
+             ================================================================ -->
+        <section class="tab-view" id="tab-cgpa">
+          
+          <div class="card" style="max-width: 680px; margin: 0 auto;">
+            <div class="card-header">
+              <div class="card-title-group">
+                <div class="card-icon-badge emerald">🎯</div>
+                <div>
+                  <h3 class="card-title">Target CGPA Simulator</h3>
+                  <p class="card-subtitle">Calculate the semester SGPA required to achieve your graduation goal</p>
+                </div>
+              </div>
+            </div>
+
+            <form onsubmit="event.preventDefault(); App.calculateTargetCGPA();">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Current CGPA (Prior Semesters)</label>
+                  <input type="number" id="cgpa-curr-input" step="0.01" min="0" max="10" value="7.65" class="form-control">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Completed Credits So Far</label>
+                  <input type="number" id="cgpa-credits-input" step="0.5" min="1" max="200" value="62" class="form-control">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Current Semester Credits</label>
+                  <input type="number" id="cgpa-sem-credits-input" step="0.5" min="1" max="35" value="21" class="form-control">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Dream / Target CGPA</label>
+                  <input type="number" id="cgpa-target-input" step="0.01" min="0" max="10" value="8.50" class="form-control">
+                </div>
+              </div>
+
+              <button type="submit" class="header-action-btn primary" style="width: 100%; justify-content: center; padding: 0.75rem; font-size: 0.95rem; margin-top: 0.5rem;">
+                Calculate Required SGPA ➔
+              </button>
+            </form>
+
+            <div id="cgpa-result-display" style="margin-top: 1.5rem;">
+              <!-- Target calculated on demand -->
+            </div>
+          </div>
+
+        </section>
+
+      </div>
+    </main>
+
+  </div>
+
+
+  <!-- ======================================================================
+       MODALS
+       ====================================================================== -->
+
+  <!-- 1. Add Subject Modal -->
+  <div class="modal-backdrop" id="modal-add-subject">
+    <div class="modal-card">
+      <button class="modal-close-btn">✕</button>
+      <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Add New Course</h3>
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.25rem;">Track attendance percentage and safe bunks</p>
+
+      <form id="form-add-subject">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Course Code (e.g. UCS415)</label>
+            <input type="text" id="sub-code-input" placeholder="UCS303" required class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Faculty Name</label>
+            <input type="text" id="sub-faculty-input" placeholder="Dr. Sharma" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Course Title</label>
+          <input type="text" id="sub-name-input" placeholder="Computer Networks & Security" required class="form-control">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Attended Classes</label>
+            <input type="number" id="sub-attended-input" min="0" value="20" required class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Total Classes Held</label>
+            <input type="number" id="sub-total-input" min="0" value="24" required class="form-control">
+          </div>
+        </div>
+
+        <button type="submit" class="header-action-btn primary" style="width: 100%; justify-content: center; padding: 0.75rem; margin-top: 0.5rem;">
+          Save Course to Tracker
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Post Ride Modal -->
+  <div class="modal-backdrop" id="modal-post-ride">
+    <div class="modal-card">
+      <button class="modal-close-btn">✕</button>
+      <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Post a Cab Pool</h3>
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.25rem;">Find co-passengers from Thapar hostels to split the ride fare</p>
+
+      <form id="form-post-ride">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Pickup Location</label>
+            <input type="text" id="ride-from-input" value="Hostel J / Gate 1" required class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Destination</label>
+            <input type="text" id="ride-to-input" placeholder="Rajpura Railway Station / Chandigarh" required class="form-control">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Date</label>
+            <input type="date" id="ride-date-input" required class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Departure Time</label>
+            <input type="text" id="ride-time-input" placeholder="05:00 PM" required class="form-control">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Total Seats</label>
+            <input type="number" id="ride-seats-input" min="1" max="7" value="4" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Seats Available</label>
+            <input type="number" id="ride-avail-seats-input" min="1" max="7" value="2" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Total Cab Fare (₹)</label>
+            <input type="number" id="ride-fare-input" value="700" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">WhatsApp Contact Number</label>
+            <input type="tel" id="ride-phone-input" placeholder="9876543210" required class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Luggage Space</label>
+            <input type="text" id="ride-luggage-input" placeholder="1 Trolley + Backpack" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-group" style="display: flex; align-items: center; gap: 0.6rem; margin-top: 0.25rem;">
+          <input type="checkbox" id="ride-female-only-input" style="width: 18px; height: 18px; accent-color: var(--tiet-crimson);">
+          <label for="ride-female-only-input" style="font-size: 0.85rem; color: #f472b6; font-weight: 600; cursor: pointer;">
+            Female co-passengers only
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Extra Notes (Train / Flight Details)</label>
+          <textarea id="ride-notes-input" rows="2" placeholder="Catching Vande Bharat at 5:45 PM. Cab already booked." class="form-control"></textarea>
+        </div>
+
+        <button type="submit" class="header-action-btn primary" style="width: 100%; justify-content: center; padding: 0.75rem;">
+          Publish Cab Pool
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Contribute PYQ Modal -->
+  <div class="modal-backdrop" id="modal-contrib-pyq">
+    <div class="modal-card">
+      <button class="modal-close-btn">✕</button>
+      <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Contribute Study Material</h3>
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.25rem;">Help TIET peers and juniors prepare for MST/EST exams</p>
+
+      <form id="form-contrib-pyq">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Course Code</label>
+            <input type="text" id="pyq-code-input" placeholder="UCS415" required class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Material Type</label>
+            <select id="pyq-type-input" class="form-control">
+              <option value="MST">MST Question Paper</option>
+              <option value="EST">EST Question Paper</option>
+              <option value="Notes">Topper Handwritten Notes</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Document Title</label>
+          <input type="text" id="pyq-title-input" placeholder="Algorithms 2025 Solved Papers with Solutions" required class="form-control">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Branch</label>
+            <input type="text" id="pyq-branch-input" value="COE/COPC" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Semester</label>
+            <input type="number" id="pyq-sem-input" min="1" max="8" value="4" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Key Topics (Comma Separated)</label>
+          <input type="text" id="pyq-tags-input" placeholder="Dynamic Programming, Graphs, Greedy" class="form-control">
+        </div>
+
+        <button type="submit" class="header-action-btn primary" style="width: 100%; justify-content: center; padding: 0.75rem;">
+          Upload to Academic Vault
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. Post Bazaar Item Modal -->
+  <div class="modal-backdrop" id="modal-post-bazaar">
+    <div class="modal-card">
+      <button class="modal-close-btn">✕</button>
+      <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Sell an Item on Campus</h3>
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.25rem;">Bicycles, ED Drafters, Room Coolers, Kettles & Books</p>
+
+      <form id="form-post-bazaar">
+        <div class="form-group">
+          <label class="form-label">Item Title</label>
+          <input type="text" id="bazaar-title-input" placeholder="Hero Sprint 21 Speed Cycle / Omega Drafter" required class="form-control">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select id="bazaar-cat-input" class="form-control">
+              <option value="Bicycles">Bicycles</option>
+              <option value="Engineering Tools">Engineering Tools & Drafters</option>
+              <option value="Room Appliances">Room Appliances (Kettle/Cooler)</option>
+              <option value="Apparel & Books">Lab Coats & Books</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Selling Price (₹)</label>
+            <input type="number" id="bazaar-price-input" placeholder="2500" required class="form-control">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Condition</label>
+            <input type="text" id="bazaar-cond-input" value="Like New" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Hostel & Room for Pickup</label>
+            <input type="text" id="bazaar-hostel-input" value="Hostel J - Room 312" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">WhatsApp Contact Phone</label>
+          <input type="tel" id="bazaar-phone-input" placeholder="9876543210" required class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Item Description</label>
+          <textarea id="bazaar-desc-input" rows="2" placeholder="Smooth gears, includes cycle lock and front light." class="form-control"></textarea>
+        </div>
+
+        <button type="submit" class="header-action-btn primary" style="width: 100%; justify-content: center; padding: 0.75rem;">
+          List Item on Bazaar
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. Report Lost/Found Modal -->
+  <div class="modal-backdrop" id="modal-post-lostfound">
+    <div class="modal-card">
+      <button class="modal-close-btn">✕</button>
+      <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Report Lost or Found Item</h3>
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.25rem;">Central Library, TAN Audi, LP Halls, COS Food Court</p>
+
+      <form id="form-post-lostfound">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Report Type</label>
+            <select id="lf-type-input" class="form-control">
+              <option value="Lost">🚨 I Lost Something</option>
+              <option value="Found">🟢 I Found Something</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Item Name</label>
+            <input type="text" id="lf-title-input" placeholder="Casio fx-991EX Calculator / Earphones" required class="form-control">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Campus Location</label>
+          <input type="text" id="lf-loc-input" placeholder="Central Library 2nd floor / LP 104" required class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Details / Identifying Features</label>
+          <textarea id="lf-details-input" rows="2" placeholder="Black case with a small sticker on back." class="form-control"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Contact Person & Phone</label>
+          <input type="text" id="lf-contact-input" placeholder="Rahul - 9876543210 / Hostel J Caretaker" class="form-control">
+        </div>
+
+        <button type="submit" class="header-action-btn primary" style="width: 100%; justify-content: center; padding: 0.75rem;">
+          Post Lost & Found Notice
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 6. Create Anonymous Feed Post Modal -->
+  <div class="modal-backdrop" id="modal-create-post">
+    <div class="modal-card">
+      <button class="modal-close-btn">✕</button>
+      <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">New Campus Post</h3>
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.25rem;">Share anonymous advice, questions, or hostel life thoughts</p>
+
+      <form id="form-create-post">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Topic / Category</label>
+            <select id="post-tag-input" class="form-control">
+              <option value="Placement Prep">💼 Placement Prep</option>
+              <option value="Academic Advice">📖 Academic Tips & MST</option>
+              <option value="Hostel Banter">🏠 Hostel Life & Banter</option>
+              <option value="Campus Life">🌟 Campus Queries</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Alias / Handle</label>
+            <input type="text" id="post-alias-input" placeholder="Hostel J Resident / Senior 4th Year" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Your Message / Advice</label>
+          <textarea id="post-content-input" rows="4" placeholder="What's on your mind? Share tips, ask course advice, or review campus spots..." required class="form-control"></textarea>
+        </div>
+
+        <button type="submit" class="header-action-btn primary" style="width: 100%; justify-content: center; padding: 0.75rem;">
+          Share with TIET Community
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 7. User Profile Modal -->
+  <div class="modal-backdrop" id="modal-user-profile">
+    <div class="modal-card">
+      <button class="modal-close-btn">✕</button>
+      <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Edit Profile & Attendance Goal</h3>
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.25rem;">Customize your hostel, branch, and target criteria</p>
+
+      <form id="form-user-profile">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Your Name</label>
+            <input type="text" id="profile-name-input" value="Aarav Sharma" required class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Roll Number</label>
+            <input type="text" id="profile-roll-input" value="102203456" required class="form-control">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Branch</label>
+            <input type="text" id="profile-branch-input" value="COE (Computer Engineering)" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Hostel</label>
+            <input type="text" id="profile-hostel-input" value="Hostel J (Tower 3)" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Target Attendance Cutoff (%)</label>
+          <input type="number" id="profile-target-input" min="60" max="95" value="75" class="form-control">
+        </div>
+
+        <button type="submit" class="header-action-btn primary" style="width: 100%; justify-content: center; padding: 0.75rem;">
+          Save Profile Changes
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 8. Command Palette Modal (Ctrl + K) -->
+  <div class="modal-backdrop" id="modal-command-palette">
+    <div class="modal-card" style="max-width: 600px; padding: 1.25rem;">
+      <div style="display: flex; align-items: center; gap: 0.75rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem; margin-bottom: 1rem;">
+        <span style="font-size: 1.2rem;">⚡</span>
+        <input type="text" id="cmd-search-input" placeholder="Type a command, subject, or jump to tab..." class="form-control" style="border: none; background: transparent; font-size: 1.05rem; padding: 0;">
+        <span class="search-kbd">ESC to close</span>
+      </div>
+
+      <div id="cmd-results-list" style="max-height: 380px; overflow-y: auto;">
+        <!-- Initial suggestions rendered via app.js filterCommandPalette -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="mobile-bottom-bar">
+    <button class="mobile-nav-btn active" data-tab-target="dashboard">
+      <span>📊</span>
+      <span>Attendance</span>
+    </button>
+    <button class="mobile-nav-btn" data-tab-target="rideshare">
+      <span>🚗</span>
+      <span>Cabs</span>
+    </button>
+    <button class="mobile-nav-btn" data-tab-target="mess">
+      <span>🍛</span>
+      <span>Mess</span>
+    </button>
+    <button class="mobile-nav-btn" data-tab-target="vault">
+      <span>📚</span>
+      <span>Vault</span>
+    </button>
+    <button class="mobile-nav-btn" data-tab-target="feed">
+      <span>💬</span>
+      <span>Feed</span>
+    </button>
+  </nav>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Scripts in dependency order -->
+  <script src="js/data.js"></script>
+  <script src="js/attendance.js"></script>
+  <script src="js/rideshare.js"></script>
+  <script src="js/mess.js"></script>
+  <script src="js/academic.js"></script>
+  <script src="js/marketplace.js"></script>
+  <script src="js/societies.js"></script>
+  <script src="js/feed.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
