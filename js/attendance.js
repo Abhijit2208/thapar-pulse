@@ -6,23 +6,49 @@
 const AttendanceModule = {
   subjects: [],
   targetPercentage: 75,
+  currentSemester: 4,
+  batchYear: 2024,
+  batchGradYear: 2028,
+  yearString: "2nd Year",
 
   init() {
+    this.detectBatchFromRoll(window.THAPAR_DATA.userProfile.rollNumber);
     this.loadState();
     this.render();
     this.bindEvents();
   },
 
+  detectBatchFromRoll(rollNumber) {
+    if (!rollNumber) return;
+    const decoded = window.THAPAR_DATA.decodeRollNumber(rollNumber);
+    if (!decoded) return;
+
+    this.batchYear = decoded.admissionYear;
+    this.batchGradYear = decoded.graduationYear;
+    this.currentSemester = decoded.semester;
+    this.yearString = decoded.yearName;
+
+    if (window.THAPAR_DATA && window.THAPAR_DATA.userProfile) {
+      window.THAPAR_DATA.userProfile.semester = this.currentSemester;
+      window.THAPAR_DATA.userProfile.branch = decoded.branchName;
+    }
+  },
+
   loadState() {
-    const saved = localStorage.getItem('thapar_attendance_subjects');
+    const savedSem = localStorage.getItem('thapar_current_semester');
+    if (savedSem) {
+      this.currentSemester = parseInt(savedSem, 10) || this.currentSemester;
+    }
+
+    const saved = localStorage.getItem(`thapar_attendance_subjects_sem_${this.currentSemester}`);
     if (saved) {
       try {
         this.subjects = JSON.parse(saved);
       } catch (e) {
-        this.subjects = [...window.THAPAR_DATA.attendanceSubjects];
+        this.loadSemesterPresets(this.currentSemester);
       }
     } else {
-      this.subjects = [...window.THAPAR_DATA.attendanceSubjects];
+      this.loadSemesterPresets(this.currentSemester);
     }
 
     const savedTarget = localStorage.getItem('thapar_attendance_target');
@@ -31,9 +57,43 @@ const AttendanceModule = {
     }
   },
 
+  loadSemesterPresets(sem) {
+    if (window.THAPAR_DATA.semesterPresets && window.THAPAR_DATA.semesterPresets[sem]) {
+      this.subjects = JSON.parse(JSON.stringify(window.THAPAR_DATA.semesterPresets[sem]));
+    } else {
+      this.subjects = [...window.THAPAR_DATA.attendanceSubjects];
+    }
+  },
+
+  switchSemester(semNumber) {
+    this.currentSemester = parseInt(semNumber, 10) || 4;
+    localStorage.setItem('thapar_current_semester', this.currentSemester.toString());
+
+    // Update user profile semester
+    if (window.THAPAR_DATA.userProfile) {
+      window.THAPAR_DATA.userProfile.semester = this.currentSemester;
+    }
+
+    // Check if customized subjects exist for this sem, else load presets
+    const saved = localStorage.getItem(`thapar_attendance_subjects_sem_${this.currentSemester}`);
+    if (saved) {
+      try {
+        this.subjects = JSON.parse(saved);
+      } catch (e) {
+        this.loadSemesterPresets(this.currentSemester);
+      }
+    } else {
+      this.loadSemesterPresets(this.currentSemester);
+    }
+
+    this.render();
+    window.App.showToast(`Switched to Semester ${this.currentSemester} courses`, 'info');
+  },
+
   saveState() {
-    localStorage.setItem('thapar_attendance_subjects', JSON.stringify(this.subjects));
+    localStorage.setItem(`thapar_attendance_subjects_sem_${this.currentSemester}`, JSON.stringify(this.subjects));
     localStorage.setItem('thapar_attendance_target', this.targetPercentage.toString());
+    localStorage.setItem('thapar_current_semester', this.currentSemester.toString());
   },
 
   calculateBunkMetrics(attended, total, targetPct = this.targetPercentage) {
@@ -110,6 +170,28 @@ const AttendanceModule = {
     const criticalCountEl = document.getElementById('metric-critical-count');
     const ringCircle = document.getElementById('attendance-ring-progress');
     const ringText = document.getElementById('attendance-ring-text');
+
+    // Dynamic Semester & Batch headings
+    const semHeadingEl = document.getElementById('dashboard-semester-heading');
+    const batchTagEl = document.getElementById('dashboard-batch-tag');
+    const bunkHeadingEl = document.getElementById('bunk-forecast-heading');
+
+    if (semHeadingEl) {
+      semHeadingEl.innerText = `Semester ${this.currentSemester} Attendance Forecast`;
+    }
+
+    if (batchTagEl) {
+      batchTagEl.innerText = `Batch of ${this.batchYear}-${String(this.batchGradYear).slice(2)} • ${this.yearString}`;
+    }
+
+    if (bunkHeadingEl) {
+      bunkHeadingEl.innerText = `Course Bunk Forecast — Semester ${this.currentSemester}`;
+    }
+
+    // Update active state of semester pills
+    document.querySelectorAll('.sem-pill-btn').forEach(pill => {
+      pill.classList.toggle('active', parseInt(pill.dataset.sem, 10) === this.currentSemester);
+    });
 
     if (overallPctEl) {
       overallPctEl.innerText = `${metrics.overallPct}%`;

@@ -36,10 +36,25 @@
 
         <div class="form-group" style="margin-bottom: 0;">
           <label class="form-label">TIET Roll Number (9 Digits)</label>
-          <input type="text" id="lock-roll-input" placeholder="e.g. 102203456" pattern="[0-9]{6,12}" required class="form-control">
+          <input type="text" id="lock-roll-input" placeholder="e.g. 102403456" pattern="[0-9]{6,12}" required class="form-control">
+          <p id="lock-batch-hint" style="font-size: 0.72rem; color: var(--tiet-gold); margin-top: 0.25rem; font-weight: 600;"></p>
         </div>
 
         <div class="form-row">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Semester / Batch</label>
+            <select id="lock-sem-input" class="form-control">
+              <option value="1">Semester 1 (1st Year • Batch 2025/26)</option>
+              <option value="2">Semester 2 (1st Year • Batch 2025/26)</option>
+              <option value="3">Semester 3 (2nd Year • Batch 2024)</option>
+              <option value="4" selected>Semester 4 (2nd Year • Batch 2024)</option>
+              <option value="5">Semester 5 (3rd Year • Batch 2023)</option>
+              <option value="6">Semester 6 (3rd Year • Batch 2023)</option>
+              <option value="7">Semester 7 (4th Year • Batch 2022)</option>
+              <option value="8">Semester 8 (4th Year • Batch 2022)</option>
+            </select>
+          </div>
+
           <div class="form-group" style="margin-bottom: 0;">
             <label class="form-label">Branch</label>
             <select id="lock-branch-input" class="form-control">
@@ -53,10 +68,11 @@
               <option value="Biotechnology">Biotechnology</option>
             </select>
           </div>
+        </div>
 
-          <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label">Hostel / Residence</label>
-            <select id="lock-hostel-input" class="form-control">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label">Hostel / Residence</label>
+          <select id="lock-hostel-input" class="form-control">
               <option value="Hostel J (Tower 3)">Hostel J (Tower 3)</option>
               <option value="Hostel M">Hostel M</option>
               <option value="Hostel H">Hostel H</option>
@@ -222,8 +238,8 @@
             <div class="stat-overview-card">
               <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                 <div>
-                  <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--tiet-gold); font-weight: 700;">Webkiosk Status Shield</span>
-                  <h2 style="font-size: 1.5rem; font-weight: 800; margin-top: 0.2rem;">Semester 4 Attendance Forecast</h2>
+                  <span id="dashboard-batch-tag" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--tiet-gold); font-weight: 700;">Batch of 2024-28 • 2nd Year</span>
+                  <h2 id="dashboard-semester-heading" style="font-size: 1.5rem; font-weight: 800; margin-top: 0.2rem;">Semester 4 Attendance Forecast</h2>
                   <p style="font-size: 0.82rem; color: var(--text-secondary);">Target Threshold: <strong style="color: #fff;">75% Minimum for EST/MST</strong></p>
                 </div>
                 
@@ -278,10 +294,27 @@
             </div>
           </div>
 
+          <!-- Semester Switcher Bar -->
+          <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 0.75rem 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span style="font-size: 0.85rem; font-weight: 700; color: var(--tiet-gold);">🎓 Select Semester According to Batch:</span>
+            </div>
+            <div class="filter-pills" style="margin-bottom: 0;">
+              <button class="filter-pill sem-pill-btn" data-sem="1" onclick="AttendanceModule.switchSemester(1)">Sem 1</button>
+              <button class="filter-pill sem-pill-btn" data-sem="2" onclick="AttendanceModule.switchSemester(2)">Sem 2</button>
+              <button class="filter-pill sem-pill-btn" data-sem="3" onclick="AttendanceModule.switchSemester(3)">Sem 3</button>
+              <button class="filter-pill sem-pill-btn active" data-sem="4" onclick="AttendanceModule.switchSemester(4)">Sem 4</button>
+              <button class="filter-pill sem-pill-btn" data-sem="5" onclick="AttendanceModule.switchSemester(5)">Sem 5</button>
+              <button class="filter-pill sem-pill-btn" data-sem="6" onclick="AttendanceModule.switchSemester(6)">Sem 6</button>
+              <button class="filter-pill sem-pill-btn" data-sem="7" onclick="AttendanceModule.switchSemester(7)">Sem 7</button>
+              <button class="filter-pill sem-pill-btn" data-sem="8" onclick="AttendanceModule.switchSemester(8)">Sem 8</button>
+            </div>
+          </div>
+
           <!-- Section Heading -->
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
             <div>
-              <h3 style="font-size: 1.2rem; font-weight: 700;">Course Bunk Forecast</h3>
+              <h3 id="bunk-forecast-heading" style="font-size: 1.2rem; font-weight: 700;">Course Bunk Forecast — Semester 4</h3>
               <p style="font-size: 0.8rem; color: var(--text-muted);">Real-time calculations based on TIET Webkiosk policy</p>
             </div>
             
@@ -950,9 +983,24 @@
           </div>
         </div>
 
-        <div class="form-group">
-          <label class="form-label">Target Attendance Cutoff (%)</label>
-          <input type="number" id="profile-target-input" min="60" max="95" value="75" class="form-control">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Current Semester</label>
+            <select id="profile-sem-input" class="form-control">
+              <option value="1">Semester 1 (1st Year)</option>
+              <option value="2">Semester 2 (1st Year)</option>
+              <option value="3">Semester 3 (2nd Year)</option>
+              <option value="4" selected>Semester 4 (2nd Year)</option>
+              <option value="5">Semester 5 (3rd Year)</option>
+              <option value="6">Semester 6 (3rd Year)</option>
+              <option value="7">Semester 7 (4th Year)</option>
+              <option value="8">Semester 8 (4th Year)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Target Attendance Cutoff (%)</label>
+            <input type="number" id="profile-target-input" min="60" max="95" value="75" class="form-control">
+          </div>
         </div>
 
         <button type="submit" class="header-action-btn primary" style="width: 100%; justify-content: center; padding: 0.75rem;">

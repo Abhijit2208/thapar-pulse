@@ -43,13 +43,54 @@ const App = {
     const p = window.THAPAR_DATA.userProfile;
     const nameInput = document.getElementById('lock-name-input');
     const rollInput = document.getElementById('lock-roll-input');
+    const semInput = document.getElementById('lock-sem-input');
     const branchInput = document.getElementById('lock-branch-input');
     const hostelInput = document.getElementById('lock-hostel-input');
+    const batchHint = document.getElementById('lock-batch-hint');
 
     if (nameInput && p.name) nameInput.value = p.name;
     if (rollInput && p.rollNumber) rollInput.value = p.rollNumber;
     if (branchInput && p.branch) branchInput.value = p.branch;
     if (hostelInput && p.hostel) hostelInput.value = p.hostel;
+    if (semInput && p.semester) semInput.value = p.semester;
+
+    // Real-time batch and branch auto-detection on typing roll number
+    if (rollInput) {
+      const updateBatchPreview = () => {
+        const val = rollInput.value.trim();
+        const decoded = window.THAPAR_DATA.decodeRollNumber(val);
+        
+        if (decoded) {
+          if (semInput) semInput.value = decoded.semester;
+          
+          // Match and select branch option
+          if (branchInput) {
+            let found = false;
+            for (let opt of branchInput.options) {
+              if (opt.value.includes(decoded.branchCode) || opt.text.includes(decoded.branchCode)) {
+                branchInput.value = opt.value;
+                found = true;
+                break;
+              }
+            }
+            if (!found) {
+              const newOpt = new Option(decoded.branchName, decoded.branchName, true, true);
+              branchInput.add(newOpt);
+            }
+          }
+
+          if (batchHint) {
+            batchHint.innerText = `✓ Verified TIET: ${decoded.batchString} (${decoded.yearName}) • ${decoded.branchCode} (${decoded.branchName}) • Sem ${decoded.semester}`;
+            batchHint.style.display = 'block';
+          }
+        } else if (batchHint) {
+          batchHint.innerText = '';
+        }
+      };
+
+      rollInput.addEventListener('input', updateBatchPreview);
+      updateBatchPreview();
+    }
 
     if (isAuth === 'true' && lockScreen) {
       lockScreen.classList.add('unlocked');
@@ -62,6 +103,7 @@ const App = {
         e.preventDefault();
         const name = document.getElementById('lock-name-input').value.trim();
         const roll = document.getElementById('lock-roll-input').value.trim();
+        const sem = parseInt(document.getElementById('lock-sem-input').value, 10) || 4;
         const branch = document.getElementById('lock-branch-input').value;
         const hostel = document.getElementById('lock-hostel-input').value;
 
@@ -70,18 +112,18 @@ const App = {
           return;
         }
 
-        this.unlockPortal(name, roll, branch, hostel);
+        this.unlockPortal(name, roll, branch, hostel, sem);
       });
     }
 
     if (demoBtn) {
       demoBtn.addEventListener('click', () => {
-        this.unlockPortal('Aarav Sharma', '102203456', 'COE (Computer Engineering)', 'Hostel J (Tower 3)');
+        this.unlockPortal('Aarav Sharma', '102401742', 'Computer Science & Engineering (COPC)', 'Hostel J (Tower 3)', 4);
       });
     }
   },
 
-  unlockPortal(name, roll, branch, hostel) {
+  unlockPortal(name, roll, branch, hostel, semester = 4) {
     const lockScreen = document.getElementById('lock-screen');
     
     // Save to user profile
@@ -89,8 +131,15 @@ const App = {
       name,
       rollNumber: roll,
       branch,
-      hostel
+      hostel,
+      semester
     });
+
+    // Detect and switch attendance courses according to batch
+    if (window.AttendanceModule) {
+      window.AttendanceModule.detectBatchFromRoll(roll);
+      window.AttendanceModule.switchSemester(semester);
+    }
 
     localStorage.setItem('thapar_is_authenticated', 'true');
 
@@ -98,7 +147,7 @@ const App = {
       lockScreen.classList.add('unlocked');
     }
 
-    this.showToast(`Welcome, ${name}! ThaparPulse is unlocked ⚡`, 'success');
+    this.showToast(`Welcome, ${name}! ThaparPulse is unlocked for Semester ${semester} ⚡`, 'success');
   },
 
   lockPortal() {
@@ -133,8 +182,11 @@ const App = {
     const hostelEls = document.querySelectorAll('.profile-hostel-val');
     const avatarEl = document.getElementById('sidebar-avatar');
 
+    const decoded = window.THAPAR_DATA.decodeRollNumber(p.rollNumber);
+    const branchDisplay = decoded ? decoded.branchShort : (p.branch ? p.branch.split(' ')[0] : 'COE');
+
     nameEls.forEach(el => el.innerText = p.name);
-    rollEls.forEach(el => el.innerText = `${p.rollNumber} • ${p.branch}`);
+    rollEls.forEach(el => el.innerText = `${p.rollNumber} • ${branchDisplay}`);
     hostelEls.forEach(el => el.innerText = p.hostel);
 
     if (avatarEl && p.name) {
@@ -147,22 +199,35 @@ const App = {
     const rollInput = document.getElementById('profile-roll-input');
     const branchInput = document.getElementById('profile-branch-input');
     const hostelInput = document.getElementById('profile-hostel-input');
+    const semInput = document.getElementById('profile-sem-input');
     const targetInput = document.getElementById('profile-target-input');
 
     if (nameInput) nameInput.value = p.name;
     if (rollInput) rollInput.value = p.rollNumber;
     if (branchInput) branchInput.value = p.branch;
     if (hostelInput) hostelInput.value = p.hostel;
+    if (semInput) semInput.value = p.semester || 4;
     if (targetInput) targetInput.value = p.targetAttendance || 75;
   },
 
   saveProfile(updated) {
+    const decoded = window.THAPAR_DATA.decodeRollNumber(updated.rollNumber || window.THAPAR_DATA.userProfile.rollNumber);
+    
     window.THAPAR_DATA.userProfile = {
       ...window.THAPAR_DATA.userProfile,
-      ...updated
+      ...updated,
+      branch: (decoded && (!updated.branch || updated.branch.includes('COE (Computer Engg)'))) ? decoded.branchName : (updated.branch || window.THAPAR_DATA.userProfile.branch)
     };
+    
     localStorage.setItem('thapar_user_profile', JSON.stringify(window.THAPAR_DATA.userProfile));
     this.updateProfileUI();
+
+    if (updated.semester && window.AttendanceModule) {
+      window.AttendanceModule.switchSemester(parseInt(updated.semester, 10));
+    } else if (updated.rollNumber && window.AttendanceModule) {
+      window.AttendanceModule.detectBatchFromRoll(updated.rollNumber);
+      window.AttendanceModule.render();
+    }
 
     if (updated.targetAttendance && window.AttendanceModule) {
       window.AttendanceModule.setTarget(parseInt(updated.targetAttendance, 10));
@@ -332,11 +397,13 @@ const App = {
     if (profileForm) {
       profileForm.addEventListener('submit', (e) => {
         e.preventDefault();
+        const semEl = document.getElementById('profile-sem-input');
         this.saveProfile({
           name: document.getElementById('profile-name-input').value,
           rollNumber: document.getElementById('profile-roll-input').value,
           branch: document.getElementById('profile-branch-input').value,
           hostel: document.getElementById('profile-hostel-input').value,
+          semester: semEl ? parseInt(semEl.value, 10) : 4,
           targetAttendance: parseInt(document.getElementById('profile-target-input').value, 10) || 75
         });
         this.closeModal('modal-user-profile');

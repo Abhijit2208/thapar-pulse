@@ -3,72 +3,171 @@
  */
 
 const THAPAR_DATA = {
+  // Official TIET 3-digit Branch Code Table
+  branchCodes: {
+    // Core Computer Science & IT
+    "017": { code: "COPC", name: "Computer Science & Engineering (COPC)", short: "COPC", stream: "CS" },
+    "015": { code: "COPC", name: "Computer Science & Engineering (COPC)", short: "COPC", stream: "CS" },
+    "003": { code: "COE", name: "Computer Engineering (COE)", short: "COE", stream: "CS" },
+    "004": { code: "COE", name: "Computer Engineering (COE)", short: "COE", stream: "CS" },
+    "016": { code: "COBS", name: "Computer Science & Business Systems (COBS)", short: "COBS", stream: "CS" },
+    "034": { code: "AIML", name: "Artificial Intelligence & Machine Learning (AIML)", short: "AIML", stream: "CS" },
+    "023": { code: "COSE", name: "Computer Science & Engineering (Derabassi)", short: "COSE", stream: "CS" },
+
+    // Electronics & Electrical
+    "019": { code: "ECE", name: "Electronics & Communication Engineering (ECE)", short: "ECE", stream: "EC" },
+    "018": { code: "ENC", name: "Electronics & Computer Engineering (ENC)", short: "ENC", stream: "EC" },
+    "006": { code: "EE", name: "Electrical Engineering (EE)", short: "EE", stream: "EE" },
+    "020": { code: "EEC", name: "Electrical & Computer Engineering (EEC)", short: "EEC", stream: "EE" },
+    "011": { code: "EIC", name: "Electronics (Instrumentation & Control) (EIC)", short: "EIC", stream: "EC" },
+
+    // Mechanical & Civil
+    "008": { code: "ME", name: "Mechanical Engineering (ME)", short: "ME", stream: "ME" },
+    "025": { code: "LC", name: "Mechatronics Engineering", short: "Mechatronics", stream: "ME" },
+    "002": { code: "CE", name: "Civil Engineering (CE)", short: "CE", stream: "CE" },
+    "009": { code: "MPE", name: "Mechanical Engineering (Production) (MPE)", short: "MPE", stream: "ME" },
+
+    // Chemical & Specialized Sciences
+    "001": { code: "CHE", name: "Chemical Engineering (CHE)", short: "CHE", stream: "CH" },
+    "031": { code: "BME", name: "Biomedical Engineering (BME)", short: "BME", stream: "BT" },
+    "041": { code: "BT", name: "Biotechnology (BT)", short: "Biotech", stream: "BT" }
+  },
+
+  decodeRollNumber(rollNumber) {
+    if (!rollNumber) return null;
+    const clean = String(rollNumber).trim().replace(/\D/g, '');
+    
+    // TIET 9-digit format: [Entry Category 1 digit][Admission Year 2 digits][Branch Code 3 digits][Serial Seq 3 digits]
+    // Example: 102401742 -> Regular B.E. (1), Batch 2024 (24), Branch 017 (COPC), Seq 042
+    let entryType = "Regular B.E. / B.Tech";
+    let admYear = 2024;
+    let branchInfo = this.branchCodes["003"]; // fallback COE
+    let seqNumber = "001";
+
+    if (clean.length >= 6) {
+      const entryDigit = clean.charAt(0);
+      if (entryDigit === '7') entryType = "Lateral Entry / Specialized (LEET)";
+      
+      const yearDigits = clean.substring(1, 3);
+      admYear = 2000 + parseInt(yearDigits, 10);
+
+      // Extract 3-digit branch code (index 3 to 6)
+      const bCode = clean.substring(3, 6);
+      if (this.branchCodes[bCode]) {
+        branchInfo = this.branchCodes[bCode];
+      } else {
+        // Fallback for short patterns
+        const foundKey = Object.keys(this.branchCodes).find(k => clean.includes(k));
+        if (foundKey) branchInfo = this.branchCodes[foundKey];
+      }
+
+      if (clean.length >= 9) {
+        seqNumber = clean.substring(6, 9);
+      }
+    }
+
+    const gradYear = admYear + 4;
+    let semester = 4;
+    let yearName = "2nd Year (Sophomores)";
+
+    if (admYear >= 2025) { semester = 2; yearName = "1st Year (Freshers)"; }
+    else if (admYear === 2024) { semester = 4; yearName = "2nd Year (Sophomores)"; }
+    else if (admYear === 2023) { semester = 6; yearName = "3rd Year (Juniors)"; }
+    else { semester = 8; yearName = "4th Year (Final Year)"; }
+
+    return {
+      entryType,
+      admissionYear: admYear,
+      graduationYear: gradYear,
+      batchString: `Batch of ${admYear}-${String(gradYear).slice(2)}`,
+      yearName,
+      semester,
+      branchCode: branchInfo.code,
+      branchName: branchInfo.name,
+      branchShort: branchInfo.short,
+      stream: branchInfo.stream,
+      seqNumber
+    };
+  },
+
   // User Profile Default
   userProfile: {
     name: "Aarav Sharma",
-    rollNumber: "102203456",
-    branch: "COE (Computer Engineering)",
+    rollNumber: "102401742",
+    branch: "Computer Science & Engineering (COPC)",
     semester: 4,
     hostel: "Hostel J (Tower 3)",
     targetAttendance: 75
   },
 
-  // Subjects & Attendance Preset
+  // Semester-wise realistic TIET courses database
+  semesterPresets: {
+    1: [
+      { id: "sub-101", code: "UMA010", name: "Mathematics - I (Calculus & Linear Algebra)", faculty: "Dr. Meenakshi Rana", totalClasses: 36, attendedClasses: 32, credits: 4.0 },
+      { id: "sub-102", code: "UPH004", name: "Applied Physics & Mechanics", faculty: "Dr. Sanjeev Kumar", totalClasses: 30, attendedClasses: 27, credits: 3.5 },
+      { id: "sub-103", code: "UEE001", name: "Electrical Engineering Fundamentals", faculty: "Dr. Vikas Goyal", totalClasses: 28, attendedClasses: 22, credits: 3.5 },
+      { id: "sub-104", code: "UTA007", name: "Computer Programming in C", faculty: "Dr. Anju Sharma", totalClasses: 34, attendedClasses: 30, credits: 4.0 },
+      { id: "sub-105", code: "UHU003", name: "Professional Communication", faculty: "Prof. Sonia Sharma", totalClasses: 24, attendedClasses: 19, credits: 2.0 },
+      { id: "sub-106", code: "UEN002", name: "Energy & Environment", faculty: "Dr. Radhika Sen", totalClasses: 20, attendedClasses: 17, credits: 2.0 }
+    ],
+    2: [
+      { id: "sub-201", code: "UMA004", name: "Mathematics - II (Differential Equations)", faculty: "Dr. Amit Verma", totalClasses: 36, attendedClasses: 31, credits: 4.0 },
+      { id: "sub-202", code: "UCB008", name: "Applied Chemistry & Lab", faculty: "Dr. Amjad Ali", totalClasses: 30, attendedClasses: 25, credits: 3.5 },
+      { id: "sub-203", code: "UTA018", name: "Object Oriented Programming (C++)", faculty: "Dr. Seema Bawa", totalClasses: 36, attendedClasses: 32, credits: 4.0 },
+      { id: "sub-204", code: "UES009", name: "Mechanics for Engineers", faculty: "Dr. Tarun Garg", totalClasses: 28, attendedClasses: 21, credits: 3.5 },
+      { id: "sub-205", code: "UTA015", name: "Engineering Drawing & Graphics (ED)", faculty: "Prof. H. S. Bawa", totalClasses: 32, attendedClasses: 28, credits: 3.0 },
+      { id: "sub-206", code: "UTA024", name: "Engineering Design Project - I", faculty: "Dr. Kuldeep Singh", totalClasses: 24, attendedClasses: 22, credits: 2.0 }
+    ],
+    3: [
+      { id: "sub-301", code: "UCS301", name: "Data Structures & Algorithms", faculty: "Dr. Rajesh Kumar", totalClasses: 36, attendedClasses: 32, credits: 4.0 },
+      { id: "sub-302", code: "UCS303", name: "Operating Systems", faculty: "Dr. Neha Garg", totalClasses: 30, attendedClasses: 24, credits: 3.5 },
+      { id: "sub-303", code: "UEC001", name: "Electronic Devices & Digital Circuits", faculty: "Dr. Alpana Aggarwal", totalClasses: 32, attendedClasses: 26, credits: 3.5 },
+      { id: "sub-304", code: "UMA011", name: "Numerical Analysis & Complex Variables", faculty: "Dr. Meenakshi", totalClasses: 28, attendedClasses: 20, credits: 3.5 },
+      { id: "sub-305", code: "UTA025", name: "Engineering Design Project - II", faculty: "Dr. Ashutosh Mishra", totalClasses: 24, attendedClasses: 22, credits: 2.5 }
+    ],
+    4: [
+      { id: "sub-1", code: "UCS415", name: "Design & Analysis of Algorithms", faculty: "Dr. Rajesh Kumar", totalClasses: 32, attendedClasses: 28, credits: 4.0 },
+      { id: "sub-2", code: "UCS303", name: "Operating Systems", faculty: "Dr. Neha Garg", totalClasses: 30, attendedClasses: 22, credits: 3.5 },
+      { id: "sub-3", code: "UCS405", name: "Discrete Mathematical Structures", faculty: "Dr. Amit Verma", totalClasses: 28, attendedClasses: 20, credits: 3.5 },
+      { id: "sub-4", code: "UTA018", name: "Object Oriented Programming (C++)", faculty: "Dr. Seema Bawa", totalClasses: 36, attendedClasses: 31, credits: 4.0 },
+      { id: "sub-5", code: "UHU003", name: "Professional Communication", faculty: "Prof. Sonia Sharma", totalClasses: 24, attendedClasses: 17, credits: 2.0 },
+      { id: "sub-6", code: "UCS414", name: "Computer Networks & Security", faculty: "Dr. Harpreet Singh", totalClasses: 26, attendedClasses: 18, credits: 3.5 }
+    ],
+    5: [
+      { id: "sub-501", code: "UCS503", name: "Software Engineering & Agile Methodologies", faculty: "Dr. Inderveer Chana", totalClasses: 34, attendedClasses: 30, credits: 4.0 },
+      { id: "sub-502", code: "UCS505", name: "Computer Architecture & Organization", faculty: "Dr. Maninder Singh", totalClasses: 32, attendedClasses: 25, credits: 3.5 },
+      { id: "sub-503", code: "UCS510", name: "Database Management Systems (DBMS)", faculty: "Dr. Prashant Singh", totalClasses: 36, attendedClasses: 31, credits: 4.0 },
+      { id: "sub-504", code: "UCS512", name: "Theory of Computation & Automata", faculty: "Dr. Vinay Arora", totalClasses: 30, attendedClasses: 22, credits: 3.5 },
+      { id: "sub-505", code: "UCS515", name: "Web Technologies & Cloud Applications", faculty: "Dr. Parteek Kumar", totalClasses: 28, attendedClasses: 24, credits: 3.0 }
+    ],
+    6: [
+      { id: "sub-601", code: "UCS608", name: "Compiler Construction & Design", faculty: "Dr. R. K. Sharma", totalClasses: 32, attendedClasses: 28, credits: 3.5 },
+      { id: "sub-602", code: "UCS616", name: "Machine Learning & Pattern Recognition", faculty: "Dr. Shivani Goel", totalClasses: 36, attendedClasses: 31, credits: 4.0 },
+      { id: "sub-603", code: "UCS614", name: "Cloud Computing & Distributed Systems", faculty: "Dr. Avinash Sharma", totalClasses: 30, attendedClasses: 25, credits: 3.5 },
+      { id: "sub-604", code: "UCS617", name: "Cryptography & Network Security", faculty: "Dr. Hemraj Saini", totalClasses: 28, attendedClasses: 21, credits: 3.5 },
+      { id: "sub-605", code: "UTA026", name: "Capstone Project (Phase - I)", faculty: "Prof. Project Head", totalClasses: 20, attendedClasses: 19, credits: 3.0 }
+    ],
+    7: [
+      { id: "sub-701", code: "UCS701", name: "Artificial Intelligence & Deep Learning", faculty: "Dr. Deepak Garg", totalClasses: 34, attendedClasses: 30, credits: 4.0 },
+      { id: "sub-702", code: "UCS704", name: "DevOps & Microservices Architecture", faculty: "Dr. Rohit Saxena", totalClasses: 30, attendedClasses: 26, credits: 3.5 },
+      { id: "sub-703", code: "UCS742", name: "Big Data Analytics & Spark", faculty: "Dr. Anju Bala", totalClasses: 28, attendedClasses: 22, credits: 3.5 },
+      { id: "sub-704", code: "UCS794", name: "Capstone Project (Phase - II)", faculty: "Department Committee", totalClasses: 24, attendedClasses: 23, credits: 4.0 },
+      { id: "sub-705", code: "UHU008", name: "Engineering Economics & Management", faculty: "Dr. Ravi Kiran", totalClasses: 24, attendedClasses: 19, credits: 2.0 }
+    ],
+    8: [
+      { id: "sub-801", code: "UCS802", name: "Industry Internship / Project Semester", faculty: "TIET Placement & TPO", totalClasses: 40, attendedClasses: 38, credits: 16.0 },
+      { id: "sub-802", code: "UCS803", name: "System Design & Large Scale Scalability", faculty: "Dr. Maninder Singh", totalClasses: 28, attendedClasses: 24, credits: 4.0 }
+    ]
+  },
+
+  // Subjects & Attendance Preset (defaults to current semester)
   attendanceSubjects: [
-    {
-      id: "sub-1",
-      code: "UCS415",
-      name: "Design & Analysis of Algorithms",
-      faculty: "Dr. Rajesh Kumar",
-      totalClasses: 32,
-      attendedClasses: 28,
-      credits: 4.0
-    },
-    {
-      id: "sub-2",
-      code: "UCS303",
-      name: "Operating Systems",
-      faculty: "Dr. Neha Garg",
-      totalClasses: 30,
-      attendedClasses: 22,
-      credits: 3.5
-    },
-    {
-      id: "sub-3",
-      code: "UCS405",
-      name: "Discrete Mathematical Structures",
-      faculty: "Dr. Amit Verma",
-      totalClasses: 28,
-      attendedClasses: 20,
-      credits: 3.5
-    },
-    {
-      id: "sub-4",
-      code: "UTA018",
-      name: "Object Oriented Programming (C++)",
-      faculty: "Dr. Seema Bawa",
-      totalClasses: 36,
-      attendedClasses: 31,
-      credits: 4.0
-    },
-    {
-      id: "sub-5",
-      code: "UHU003",
-      name: "Professional Communication",
-      faculty: "Prof. Sonia Sharma",
-      totalClasses: 24,
-      attendedClasses: 17,
-      credits: 2.0
-    },
-    {
-      id: "sub-6",
-      code: "UCS414",
-      name: "Computer Networks & Security",
-      faculty: "Dr. Harpreet Singh",
-      totalClasses: 26,
-      attendedClasses: 18,
-      credits: 3.5
-    }
+    { id: "sub-1", code: "UCS415", name: "Design & Analysis of Algorithms", faculty: "Dr. Rajesh Kumar", totalClasses: 32, attendedClasses: 28, credits: 4.0 },
+    { id: "sub-2", code: "UCS303", name: "Operating Systems", faculty: "Dr. Neha Garg", totalClasses: 30, attendedClasses: 22, credits: 3.5 },
+    { id: "sub-3", code: "UCS405", name: "Discrete Mathematical Structures", faculty: "Dr. Amit Verma", totalClasses: 28, attendedClasses: 20, credits: 3.5 },
+    { id: "sub-4", code: "UTA018", name: "Object Oriented Programming (C++)", faculty: "Dr. Seema Bawa", totalClasses: 36, attendedClasses: 31, credits: 4.0 },
+    { id: "sub-5", code: "UHU003", name: "Professional Communication", faculty: "Prof. Sonia Sharma", totalClasses: 24, attendedClasses: 17, credits: 2.0 },
+    { id: "sub-6", code: "UCS414", name: "Computer Networks & Security", faculty: "Dr. Harpreet Singh", totalClasses: 26, attendedClasses: 18, credits: 3.5 }
   ],
 
   // Rideshare Cab Pool Listings
