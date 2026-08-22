@@ -448,17 +448,24 @@
               <input type="text" id="vault-search-input" placeholder="Search by course code (e.g., UCS415, UMA010) or topic...">
             </div>
 
+            <!-- Type / Format Filter Row -->
             <div class="filter-pills" style="margin-bottom: 0;">
               <button class="filter-pill vault-type-btn active" data-type="all" onclick="AcademicModule.setTypeFilter('all')">All Materials</button>
-              <button class="filter-pill vault-type-btn" data-type="MST" onclick="AcademicModule.setTypeFilter('MST')">MST Papers</button>
-              <button class="filter-pill vault-type-btn" data-type="EST" onclick="AcademicModule.setTypeFilter('EST')">EST Papers</button>
-              <button class="filter-pill vault-type-btn" data-type="Notes" onclick="AcademicModule.setTypeFilter('Notes')">Topper Notes</button>
+              <button class="filter-pill vault-type-btn" data-type="MST" onclick="AcademicModule.setTypeFilter('MST')">📄 MST Papers</button>
+              <button class="filter-pill vault-type-btn" data-type="EST" onclick="AcademicModule.setTypeFilter('EST')">📄 EST Papers</button>
+              <button class="filter-pill vault-type-btn" data-type="Notes" onclick="AcademicModule.setTypeFilter('Notes')">📝 Notes</button>
+              <button class="filter-pill vault-type-btn" data-type="PPT" onclick="AcademicModule.setTypeFilter('PPT')" style="color: #fb923c; border-color: rgba(249,115,22,0.35);">📊 PPT Slides</button>
+              <button class="filter-pill vault-type-btn" data-type="DOC" onclick="AcademicModule.setTypeFilter('DOC')" style="color: #60a5fa; border-color: rgba(59,130,246,0.35);">📝 Word Docs</button>
             </div>
 
+            <!-- Branch Filter Row -->
             <div class="filter-pills" style="margin-bottom: 0;">
-              <button class="filter-pill vault-branch-btn active" data-branch="all" onclick="AcademicModule.setBranchFilter('all')">All Branches</button>
-              <button class="filter-pill vault-branch-btn" data-branch="coe" onclick="AcademicModule.setBranchFilter('coe')">COE / COPC</button>
-              <button class="filter-pill vault-branch-btn" data-branch="common" onclick="AcademicModule.setBranchFilter('common')">1st Year Common</button>
+              <button class="filter-pill vault-branch-btn active" data-branch="all" onclick="AcademicModule.setBranchFilter('all')">🌐 All Branches</button>
+              <button class="filter-pill vault-branch-btn" data-branch="cs" onclick="AcademicModule.setBranchFilter('cs')">🖥️ CS (COE/COPC/AIML)</button>
+              <button class="filter-pill vault-branch-btn" data-branch="ec" onclick="AcademicModule.setBranchFilter('ec')">⚡ ECE / ENC / EE</button>
+              <button class="filter-pill vault-branch-btn" data-branch="me" onclick="AcademicModule.setBranchFilter('me')">🔧 ME / CE</button>
+              <button class="filter-pill vault-branch-btn" data-branch="che" onclick="AcademicModule.setBranchFilter('che')">🧪 CHE / BT / BME</button>
+              <button class="filter-pill vault-branch-btn" data-branch="common" onclick="AcademicModule.setBranchFilter('common')">📚 1st Year Common</button>
             </div>
           </div>
 
@@ -767,52 +774,153 @@
 
   <!-- 3. Contribute PYQ Modal -->
   <div class="modal-backdrop" id="modal-contrib-pyq">
-    <div class="modal-card">
+    <div class="modal-card" style="max-width: 600px;">
       <button class="modal-close-btn">✕</button>
-      <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Contribute Study Material</h3>
-      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.25rem;">Help TIET peers and juniors prepare for MST/EST exams</p>
+      <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem;">📤 Contribute Study Material</h3>
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.25rem;">Help TIET peers and juniors prepare for MST/EST exams. Upload PDF, PPT, or Word documents.</p>
 
       <form id="form-contrib-pyq">
+        <!-- File Upload Dropzone -->
+        <div class="form-group">
+          <label class="form-label">Upload File <span style="color: var(--tiet-crimson-light);">*</span></label>
+          <div class="file-dropzone" id="pyq-dropzone" onclick="document.getElementById('pyq-file-input').click()">
+            <input type="file" id="pyq-file-input" accept=".pdf,.ppt,.pptx,.doc,.docx" style="display:none;">
+            <div style="font-size: 2rem; margin-bottom: 0.4rem;">📎</div>
+            <p id="dropzone-text" style="font-size: 0.88rem; color: var(--text-secondary); font-weight: 600;">Click or drag &amp; drop file to upload</p>
+            <p style="font-size: 0.75rem; color: var(--text-muted);">Supported: PDF, PPT, PPTX, DOC, DOCX (Max 50 MB)</p>
+          </div>
+          <!-- File Preview Row -->
+          <div class="file-selected-box" id="file-preview-container" style="display: none;">
+            <div style="display: flex; align-items: center; gap: 0.6rem; flex: 1; min-width: 0;">
+              <span id="preview-file-icon" style="font-size: 1.4rem;">📄</span>
+              <div style="min-width: 0;">
+                <p id="preview-file-name" style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0;"></p>
+                <p id="preview-file-size" style="font-size: 0.75rem; color: var(--text-muted); margin: 0;"></p>
+              </div>
+            </div>
+            <button type="button" onclick="AcademicModule.clearSelectedFile()" style="background: rgba(225,29,72,0.15); color: var(--tiet-crimson-light); border: none; border-radius: var(--radius-sm); padding: 0.25rem 0.6rem; cursor: pointer; font-size: 0.78rem; font-weight: 600; flex-shrink: 0;">✕ Remove</button>
+          </div>
+        </div>
+
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label">Course Code</label>
-            <input type="text" id="pyq-code-input" placeholder="UCS415" required class="form-control">
+            <label class="form-label">Course Code <span style="color: var(--tiet-crimson-light);">*</span></label>
+            <input type="text" id="pyq-code-input" placeholder="e.g. UCS415" required class="form-control" style="text-transform: uppercase;">
           </div>
           <div class="form-group">
-            <label class="form-label">Material Type</label>
+            <label class="form-label">Format / Type</label>
             <select id="pyq-type-input" class="form-control">
-              <option value="MST">MST Question Paper</option>
-              <option value="EST">EST Question Paper</option>
-              <option value="Notes">Topper Handwritten Notes</option>
+              <option value="MST">📄 MST Question Paper (PDF)</option>
+              <option value="EST">📄 EST Question Paper (PDF)</option>
+              <option value="Notes">📝 Topper Handwritten Notes (PDF)</option>
+              <option value="PPT">📊 Lecture Slides (PPT/PPTX)</option>
+              <option value="DOC">📝 Lab Report / Assignment (DOC)</option>
+              <option value="PDF">📑 Formula Sheet / Cheat Sheet (PDF)</option>
             </select>
           </div>
         </div>
 
         <div class="form-group">
-          <label class="form-label">Document Title</label>
-          <input type="text" id="pyq-title-input" placeholder="Algorithms 2025 Solved Papers with Solutions" required class="form-control">
+          <label class="form-label">Document Title <span style="color: var(--tiet-crimson-light);">*</span></label>
+          <input type="text" id="pyq-title-input" placeholder="e.g. Design & Analysis of Algorithms EST 2025 Solved" required class="form-control">
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label">Branch</label>
-            <input type="text" id="pyq-branch-input" value="COE/COPC" class="form-control">
+            <label class="form-label">Branch / Department</label>
+            <select id="pyq-branch-input" class="form-control">
+              <optgroup label="🖥️ Computer Science & IT">
+                <option value="Computer Science &amp; Engineering (COPC)">COPC — Computer Science &amp; Engineering</option>
+                <option value="Computer Engineering (COE)">COE — Computer Engineering</option>
+                <option value="Computer Science &amp; Business Systems (COBS)">COBS — CS &amp; Business Systems</option>
+                <option value="Artificial Intelligence &amp; Machine Learning (AIML)">AIML — AI &amp; Machine Learning</option>
+                <option value="Computer Science &amp; Engineering - Derabassi (COSE)">COSE — CSE Derabassi Campus</option>
+              </optgroup>
+              <optgroup label="⚡ Electronics &amp; Electrical">
+                <option value="Electronics &amp; Communication Engineering (ECE)">ECE — Electronics &amp; Communication</option>
+                <option value="Electronics &amp; Computer Engineering (ENC)">ENC — Electronics &amp; Computer</option>
+                <option value="Electrical Engineering (EE)">EE — Electrical Engineering</option>
+                <option value="Electrical &amp; Computer Engineering (EEC)">EEC — Electrical &amp; Computer</option>
+                <option value="Electronics (Instrumentation &amp; Control) (EIC)">EIC — Instrumentation &amp; Control</option>
+              </optgroup>
+              <optgroup label="🔧 Mechanical &amp; Civil">
+                <option value="Mechanical Engineering (ME)">ME — Mechanical Engineering</option>
+                <option value="Mechatronics Engineering">LC — Mechatronics Engineering</option>
+                <option value="Civil Engineering (CE)">CE — Civil Engineering</option>
+                <option value="Mechanical Engineering (Production) (MPE)">MPE — Mechanical Production</option>
+              </optgroup>
+              <optgroup label="🧪 Chemical &amp; Sciences">
+                <option value="Chemical Engineering (CHE)">CHE — Chemical Engineering</option>
+                <option value="Biomedical Engineering (BME)">BME — Biomedical Engineering</option>
+                <option value="Biotechnology (BT)">BT — Biotechnology</option>
+              </optgroup>
+              <optgroup label="📚 All / Common">
+                <option value="All Branches (1st Year Common)">All Branches — 1st Year Common</option>
+                <option value="All Branches (2nd Year Common)">All Branches — 2nd Year Common</option>
+              </optgroup>
+            </select>
           </div>
           <div class="form-group">
             <label class="form-label">Semester</label>
-            <input type="number" id="pyq-sem-input" min="1" max="8" value="4" class="form-control">
+            <select id="pyq-sem-input" class="form-control">
+              <option value="1">Semester 1 (1st Year)</option>
+              <option value="2">Semester 2 (1st Year)</option>
+              <option value="3">Semester 3 (2nd Year)</option>
+              <option value="4" selected>Semester 4 (2nd Year)</option>
+              <option value="5">Semester 5 (3rd Year)</option>
+              <option value="6">Semester 6 (3rd Year)</option>
+              <option value="7">Semester 7 (4th Year)</option>
+              <option value="8">Semester 8 (4th Year)</option>
+            </select>
           </div>
         </div>
 
         <div class="form-group">
           <label class="form-label">Key Topics (Comma Separated)</label>
-          <input type="text" id="pyq-tags-input" placeholder="Dynamic Programming, Graphs, Greedy" class="form-control">
+          <input type="text" id="pyq-tags-input" placeholder="e.g. Dynamic Programming, Graphs, Greedy Algorithms" class="form-control">
         </div>
 
-        <button type="submit" class="header-action-btn primary" style="width: 100%; justify-content: center; padding: 0.75rem;">
-          Upload to Academic Vault
+        <button type="submit" class="header-action-btn primary" style="width: 100%; justify-content: center; padding: 0.85rem; font-size: 0.95rem;">
+          📤 Upload to Academic Vault
         </button>
       </form>
+    </div>
+  </div>
+
+  <!-- 3b. Document Preview Modal -->
+  <div class="modal-backdrop" id="modal-preview-doc">
+    <div class="modal-card" style="max-width: 760px; max-height: 90vh; display: flex; flex-direction: column;">
+      <button class="modal-close-btn" onclick="AcademicModule.closePreview()">✕</button>
+
+      <!-- Header -->
+      <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 0;">
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem;">
+            <span id="doc-viewer-format-badge" class="paper-type-tag pdf">PDF</span>
+          </div>
+          <h3 id="doc-viewer-title" style="font-size: 1.1rem; font-weight: 800; margin: 0; line-height: 1.35; color: var(--text-primary);">Document Title</h3>
+          <p id="doc-viewer-meta" style="font-size: 0.76rem; color: var(--text-muted); margin: 0.35rem 0 0;"></p>
+        </div>
+        <button id="doc-viewer-download-btn" class="btn-download-pyq" style="flex-shrink: 0; padding: 0.5rem 1rem; font-size: 0.82rem;">
+          📥 Download
+        </button>
+      </div>
+
+      <!-- Document Body (rendered content) -->
+      <div id="doc-viewer-body" style="flex: 1; overflow-y: auto; margin-bottom: 1rem; border-radius: var(--radius-md);">
+        <!-- Rendered dynamically by AcademicModule.renderPreviewPage() -->
+      </div>
+
+      <!-- Navigation Footer -->
+      <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border-subtle); padding-top: 0.85rem; flex-shrink: 0;">
+        <button id="doc-prev-page-btn" class="header-action-btn" style="padding: 0.4rem 0.9rem; font-size: 0.82rem;" disabled>
+          ← Prev
+        </button>
+        <span id="doc-viewer-page-indicator" style="font-size: 0.82rem; color: var(--text-muted); font-weight: 600;">Page 1 of 1</span>
+        <button id="doc-next-page-btn" class="header-action-btn" style="padding: 0.4rem 0.9rem; font-size: 0.82rem;" disabled>
+          Next →
+        </button>
+      </div>
     </div>
   </div>
 

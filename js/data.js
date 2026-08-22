@@ -329,7 +329,7 @@ const THAPAR_DATA = {
       famousFor: "Rolls Nation, Nescafe Frappe, Waffles, SubHub",
       timings: "9:00 AM - 1:00 AM",
       crowdLevel: "Moderate (10 min wait)",
-      deliveryNumber: "+91 98721 00112",
+      deliveryNumber: "+919872100112",
       rating: 4.6
     },
     {
@@ -339,7 +339,7 @@ const THAPAR_DATA = {
       famousFor: "Butter Chicken, Shawarma, Chai Nagri, Dosa Planet",
       timings: "11:00 AM - 2:30 AM (Late Night)",
       crowdLevel: "High (Peak hours 9 PM - 12 AM)",
-      deliveryNumber: "+91 98721 55667",
+      deliveryNumber: "+919872155667",
       rating: 4.8
     },
     {
@@ -349,7 +349,7 @@ const THAPAR_DATA = {
       famousFor: "Fresh Mosambi Juice, Grilled Cheese Sandwiches, Cold Coffee",
       timings: "8:30 AM - 6:00 PM",
       crowdLevel: "High between 12:45 PM - 1:45 PM (Class change)",
-      deliveryNumber: "+91 98721 88990",
+      deliveryNumber: "+919872188990",
       rating: 4.4
     },
     {
@@ -359,96 +359,172 @@ const THAPAR_DATA = {
       famousFor: "Authentic Patiala Lassi, Chole Kulche, Desi Ghee Jalebi",
       timings: "8:00 AM - 11:00 PM",
       crowdLevel: "Moderate",
-      deliveryNumber: "+91 98721 33441",
+      deliveryNumber: "+919872133441",
       rating: 4.7
     }
   ],
 
-  // Academic PYQs & Study Vault
+  // Academic PYQs & Study Vault (PDF, PPT, DOC, Handwritten Notes)
   academicVault: [
     {
       id: "pyq-1",
       courseCode: "UCS415",
-      title: "Design & Analysis of Algorithms - EST 2025 Solved",
+      title: "Design & Analysis of Algorithms - EST 2025 Solved Paper",
       type: "EST",
-      branch: "COE/COPC",
+      format: "PDF",
+      branch: "Computer Science & Engineering (COPC)",
+      branchCode: "COPC",
       semester: 4,
       year: "2025",
       fileSize: "3.4 MB",
       uploader: "Aniket (COE '24 Topper)",
       rating: 4.9,
       downloads: 480,
-      tags: ["Dynamic Programming", "Greedy", "Graph Algorithms", "NP-Complete"]
+      tags: ["Dynamic Programming", "Greedy", "Graph Algorithms", "NP-Complete"],
+      pages: [
+        {
+          heading: "Section A: Divide & Conquer and Recurrences",
+          content: "Q1. Solve the recurrence relation T(n) = 2T(n/2) + n log n using Master's Theorem.\n\nSolution: Here a = 2, b = 2, f(n) = n log n. Since log_b(a) = log_2(2) = 1, we have n^{log_b(a)} = n^1 = n. Comparing f(n) with n, f(n) grows strictly faster by a polylogarithmic factor. Thus, Case 2 Extended applies:\nT(n) = Θ(n log^2 n)."
+        },
+        {
+          heading: "Section B: Dynamic Programming (0/1 Knapsack & LCS)",
+          content: "Q2. Formulate the Bellman Equation for the 0/1 Knapsack problem with capacity W and items (w_i, v_i).\n\nDP State: DP[i][w] represents the maximum profit using a subset of items from 1 to i with max capacity w.\nTransition:\nDP[i][w] = DP[i-1][w]  if w_i > w\nDP[i][w] = max(DP[i-1][w], DP[i-1][w - w_i] + v_i)  if w_i <= w.\nTime Complexity: O(n * W), Space Complexity: O(n * W) optimizable to O(W)."
+        },
+        {
+          heading: "Section C: Graph Algorithms (Dijkstra vs Bellman-Ford)",
+          content: "Q3. Explain why Dijkstra's algorithm fails with negative edge weights and how Bellman-Ford resolves it.\n\nExplanation: Dijkstra greedily marks vertices as 'visited/finalized' assuming edge relaxations only increase distances. Negative weight cycles violate this optimality substructure. Bellman-Ford relaxes all |E| edges |V|-1 times, guaranteeing correct shortest paths in O(V * E) time."
+        }
+      ]
     },
     {
       id: "pyq-2",
       courseCode: "UCS303",
-      title: "Operating Systems - MST 1 & MST 2 Collection",
-      type: "MST",
-      branch: "COE/COPC",
+      title: "Operating Systems - Complete Lecture Slides & Architecture",
+      type: "PPT",
+      format: "PPT",
+      branch: "Computer Engineering (COE)",
+      branchCode: "COE",
       semester: 4,
-      year: "2024",
-      fileSize: "2.1 MB",
-      uploader: "TIET Coding Club Vault",
+      year: "2025",
+      fileSize: "6.8 MB",
+      uploader: "Prof. Operating Systems Head",
       rating: 4.8,
       downloads: 620,
-      tags: ["Process Scheduling", "Semaphores", "Deadlocks", "Paging"]
+      tags: ["Process Scheduling", "Semaphores", "Deadlocks", "Virtual Memory"],
+      pages: [
+        {
+          heading: "Slide 1: CPU Scheduling & Multithreading",
+          content: "• CPU-I/O Burst Cycle: Process execution consists of alternating CPU execution and I/O wait bursts.\n• Preemptive vs Non-Preemptive Scheduling Algorithms:\n  - FCFS (First-Come, First-Served)\n  - SJF (Shortest Job First - Optimal average wait time)\n  - Round Robin (Time quantum based for interactive timesharing)\n• Multilevel Feedback Queue Scheduling (MLFQ)."
+        },
+        {
+          heading: "Slide 2: Synchronization & Classic IPC Problems",
+          content: "• The Critical Section Problem: Mutual Exclusion, Progress, Bounded Waiting.\n• Hardware atomic instructions (TestAndSet, CompareAndSwap).\n• Semaphores:\n  - Counting Semaphores (Resource pooling)\n  - Binary Semaphores (Mutex locks)\n• Classic Problems:\n  - Producer-Consumer (Bounded Buffer)\n  - Readers-Writers with Starvation Prevention\n  - Dining Philosophers Problem."
+        },
+        {
+          heading: "Slide 3: Deadlock Characterization & Prevention",
+          content: "• Coffman's 4 Necessary Conditions for Deadlock:\n  1. Mutual Exclusion\n  2. Hold and Wait\n  3. No Preemption\n  4. Circular Wait\n• Deadlock Avoidance: Banker's Algorithm (Safety State Algorithm).\n• Deadlock Detection and Recovery through Resource Allocation Graphs (RAG)."
+        }
+      ]
     },
     {
       id: "pyq-3",
       courseCode: "UTA018",
-      title: "OOP in C++ Handwritten Topper Notes & Lab Solutions",
-      type: "Notes",
-      branch: "All 1st/2nd Year",
+      title: "OOP in C++ Lab Manual & Assignment Code Report",
+      type: "DOC",
+      format: "DOC",
+      branch: "All Branches (1st/2nd Year)",
+      branchCode: "Common",
       semester: 2,
       year: "2025",
-      fileSize: "5.8 MB",
+      fileSize: "2.5 MB",
       uploader: "Priya S. (CGPA 9.8)",
       rating: 5.0,
       downloads: 1250,
-      tags: ["Polymorphism", "Virtual Functions", "Templates", "STL Vectors"]
+      tags: ["Polymorphism", "Virtual Functions", "Templates", "STL Vectors"],
+      pages: [
+        {
+          heading: "Experiment 1: Polymorphism & Pure Virtual Functions",
+          content: "Objective: Implement runtime polymorphism using abstract base class Shape with virtual area() and perimeter() methods.\n\nCode Structure:\nclass Shape {\npublic:\n    virtual double area() const = 0; // Pure virtual function\n    virtual ~Shape() {}\n};\n\nclass Circle : public Shape {\n    double radius;\npublic:\n    Circle(double r) : radius(r) {}\n    double area() const override { return 3.14159 * radius * radius; }\n};"
+        },
+        {
+          heading: "Experiment 2: C++ STL Containers & Lambda Functions",
+          content: "Objective: Benchmarking std::vector vs std::list performance for high-frequency insertions.\n\nKey Findings:\n- std::vector provides O(1) random access and contiguous cache locality.\n- std::sort() outperforms list sorting due to Introsort (quicksort + heapsort hybrid).\n- Custom comparators implemented via lambda expressions: [](const Student& a, const Student& b) { return a.cgpa > b.cgpa; }."
+        }
+      ]
     },
     {
       id: "pyq-4",
       courseCode: "UMA010",
       title: "Mathematics-I (Calculus & Linear Algebra) Past 5 Year Papers",
       type: "EST",
-      branch: "All Branches (1st Sem)",
+      format: "PDF",
+      branch: "All Branches (1st Year Common)",
+      branchCode: "Common",
       semester: 1,
       year: "2020-2025",
       fileSize: "7.2 MB",
       uploader: "Maths Society TIET",
       rating: 4.9,
       downloads: 2100,
-      tags: ["Eigen Values", "Taylor Series", "Multiple Integrals", "Rank of Matrix"]
+      tags: ["Eigen Values", "Taylor Series", "Multiple Integrals", "Rank of Matrix"],
+      pages: [
+        {
+          heading: "Part 1: Cayley-Hamilton Theorem & Matrix Inversion",
+          content: "Statement: Every square matrix satisfies its own characteristic equation |A - λI| = 0.\n\nApplication: Compute A^4 and A^{-1} for matrix A = [[2, 1], [1, 2]].\nCharacteristic polynomial: λ^2 - 4λ + 3 = 0.\nBy Cayley-Hamilton: A^2 - 4A + 3I = 0 => A^{-1} = (4I - A) / 3."
+        },
+        {
+          heading: "Part 2: Double & Triple Integrals over Polar Regions",
+          content: "Evaluate ∬_R e^{-(x^2 + y^2)} dx dy over the first quadrant where x, y >= 0.\n\nTransforming to polar coordinates (x = r cos θ, y = r sin θ, Jacobian = r):\nIntegral = ∫_0^{π/2} dθ ∫_0^∞ e^{-r^2} r dr = (π/2) * [-e^{-r^2}/2]_0^∞ = π / 4."
+        }
+      ]
     },
     {
       id: "pyq-5",
       courseCode: "UEE001",
-      title: "Electrical & Electronics Engineering Formula Cheat Sheet",
-      type: "Notes",
-      branch: "1st Year Common",
+      title: "Electrical & Electronics Formula Summary Presentation",
+      type: "PPT",
+      format: "PPT",
+      branch: "Electrical & Electronics (ECE / EE / EEC)",
+      branchCode: "ECE",
       semester: 1,
       year: "2025",
-      fileSize: "1.9 MB",
+      fileSize: "4.5 MB",
       uploader: "IEEE Student Chapter",
       rating: 4.7,
       downloads: 890,
-      tags: ["Thevenin Theorem", "AC Circuits", "Transformers", "Diode Rectifiers"]
+      tags: ["Thevenin Theorem", "AC Circuits", "Transformers", "Diode Rectifiers"],
+      pages: [
+        {
+          heading: "Slide 1: DC Network Theorems Cheat Sheet",
+          content: "• Thevenin's Theorem: Any linear two-terminal circuit can be replaced by an equivalent voltage source V_th in series with resistance R_th.\n• Norton's Theorem: Dual of Thevenin (I_N in parallel with R_N = R_th).\n• Maximum Power Transfer Theorem: P_max occurs when load resistance R_L = R_th. Formula: P_max = V_th^2 / (4 * R_th)."
+        },
+        {
+          heading: "Slide 2: AC Steady State & Resonance",
+          content: "• Phasor Analysis: V = I * Z, where Z = R + j(X_L - X_C).\n• Series RLC Resonance Frequency: f_0 = 1 / (2π √(LC)).\n• Quality Factor Q = (ω_0 * L) / R = Bandwidth Selectivity."
+        }
+      ]
     },
     {
       id: "pyq-6",
       courseCode: "UCS405",
       title: "Discrete Mathematical Structures MST Solved Paper",
       type: "MST",
-      branch: "COE/COPC/ENC",
+      format: "PDF",
+      branch: "Computer Science & Engineering (COPC)",
+      branchCode: "COPC",
       semester: 3,
       year: "2024",
       fileSize: "2.6 MB",
       uploader: "Aryan K.",
       rating: 4.6,
       downloads: 410,
-      tags: ["Recurrence Relations", "Pigeonhole Principle", "Tree Traversals"]
+      tags: ["Recurrence Relations", "Pigeonhole Principle", "Tree Traversals"],
+      pages: [
+        {
+          heading: "MST Question 1: Generating Functions",
+          content: "Q: Find the closed-form generating function for sequence a_n = 3^n - 2^n for n >= 0.\n\nSolution: G(x) = ∑_{n=0}^∞ (3^n - 2^n) x^n = 1/(1 - 3x) - 1/(1 - 2x) = x / ((1 - 3x)(1 - 2x))."
+        }
+      ]
     }
   ],
 

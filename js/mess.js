@@ -119,28 +119,38 @@ const MessModule = {
     const container = document.getElementById('food-spots-container');
     if (!container) return;
 
-    container.innerHTML = window.THAPAR_DATA.foodSpots.map(spot => `
-      <div class="spot-card">
-        <div>
-          <div class="spot-header">
-            <h4 class="spot-name">${spot.name}</h4>
-            <span class="spot-status ${spot.crowdLevel.includes('High') ? 'crowded' : 'open'}">
-              ${spot.crowdLevel.includes('High') ? '⚠️ High Rush' : '🟢 Open Now'}
-            </span>
-          </div>
-          <p style="font-size: 0.78rem; color: var(--tiet-gold); font-weight: 600; margin-bottom: 0.4rem;">📍 ${spot.location}</p>
-          <p style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 0.75rem;">🌟 <strong>Must Try:</strong> ${spot.famousFor}</p>
-          <p style="font-size: 0.75rem; color: var(--text-muted);"><span style="color: var(--text-secondary);">⏰ Timings:</span> ${spot.timings}</p>
-        </div>
+    container.innerHTML = window.THAPAR_DATA.foodSpots.map(spot => {
+      const rawNumber = spot.deliveryNumber.replace(/\s+/g, '');
+      // Format for display: +91 98721 00112
+      const displayNumber = rawNumber.replace(/(\+\d{2})(\d{5})(\d{5})/, '$1 $2 $3');
 
-        <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
-          <span style="font-size: 0.85rem; font-weight: 700; color: var(--tiet-gold);">⭐ ${spot.rating} / 5.0</span>
-          <a href="tel:${spot.deliveryNumber}" class="header-action-btn" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;">
-            <span>📞</span> Call / Order
-          </a>
+      return `
+        <div class="spot-card">
+          <div>
+            <div class="spot-header">
+              <h4 class="spot-name">${spot.name}</h4>
+              <span class="spot-status ${spot.crowdLevel.includes('High') ? 'crowded' : 'open'}">
+                ${spot.crowdLevel.includes('High') ? '⚠️ High Rush' : '🟢 Open Now'}
+              </span>
+            </div>
+            <p style="font-size: 0.78rem; color: var(--tiet-gold); font-weight: 600; margin-bottom: 0.4rem;">📍 ${spot.location}</p>
+            <p style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 0.75rem;">🌟 <strong>Must Try:</strong> ${spot.famousFor}</p>
+            <p style="font-size: 0.75rem; color: var(--text-muted);"><span style="color: var(--text-secondary);">⏰ Timings:</span> ${spot.timings}</p>
+          </div>
+
+          <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 0.85rem; font-weight: 700; color: var(--tiet-gold);">⭐ ${spot.rating} / 5.0</span>
+            <a href="tel:${rawNumber}"
+               class="header-action-btn"
+               title="Call ${displayNumber}"
+               style="padding: 0.35rem 0.85rem; font-size: 0.78rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;"
+               onclick="event.stopPropagation(); window.App && window.App.showToast('Calling ${displayNumber}...', 'info');">
+              📞 Call / Order
+            </a>
+          </div>
         </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
   }
 };
 
