@@ -103,12 +103,18 @@ const App = {
         e.preventDefault();
         const name = document.getElementById('lock-name-input').value.trim();
         const roll = document.getElementById('lock-roll-input').value.trim();
+        const pwd = document.getElementById('lock-password-input').value.trim();
         const sem = parseInt(document.getElementById('lock-sem-input').value, 10) || 4;
         const branch = document.getElementById('lock-branch-input').value;
         const hostel = document.getElementById('lock-hostel-input').value;
 
-        if (!name || !roll) {
-          this.showToast('Please enter your name and roll number', 'error');
+        if (!name || !roll || !pwd) {
+          this.showToast('Please enter your name, roll number, and password', 'error');
+          return;
+        }
+        
+        if (pwd.length < 6) {
+          this.showToast('Password must be at least 6 characters for 100% security', 'error');
           return;
         }
 

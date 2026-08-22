@@ -27,6 +27,7 @@
       
       <h2 class="lock-title">ThaparPulse Gateway</h2>
       <p class="lock-subtitle">Enter your TIET credentials to unlock your campus portal</p>
+      <div style="display: inline-block; background: rgba(16, 185, 129, 0.15); color: var(--safe-emerald); font-size: 0.75rem; font-weight: 700; padding: 0.3rem 0.6rem; border-radius: 4px; margin-bottom: 1rem; border: 1px solid rgba(16, 185, 129, 0.3);">🔒 100% Secure Webkiosk Login</div>
 
       <form class="lock-form" id="form-lock-login">
         <div class="form-group" style="margin-bottom: 0;">
@@ -38,6 +39,11 @@
           <label class="form-label">TIET Roll Number (9 Digits)</label>
           <input type="text" id="lock-roll-input" placeholder="e.g. 102403456" pattern="[0-9]{6,12}" required class="form-control">
           <p id="lock-batch-hint" style="font-size: 0.72rem; color: var(--tiet-gold); margin-top: 0.25rem; font-weight: 600;"></p>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label">Webkiosk Password</label>
+          <input type="password" id="lock-password-input" placeholder="••••••••" required class="form-control">
         </div>
 
         <div class="form-row">
