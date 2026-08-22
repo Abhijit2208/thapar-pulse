@@ -607,24 +607,49 @@
 
 
         <!-- ================================================================
-             TAB 8: LIVE TIMETABLE (EMBED)
+             TAB 8: LIVE TIMETABLE (NATIVE)
              ================================================================ -->
         <section class="tab-view" id="tab-timetable">
-          <div style="width: 100%; height: calc(100vh - 120px); border-radius: var(--radius-lg); overflow: hidden; background: var(--bg-card); border: 1px solid var(--border-subtle); display: flex; flex-direction: column;">
-            
-            <!-- Quick Header for the Frame -->
-            <div style="padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2);">
-              <div>
-                <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.15rem;">Live Section Timetable</h3>
-                <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">Powered by tiet.pages.dev • Select your semester and section</p>
+          <div class="card" style="margin-bottom: 1.5rem;">
+            <div class="card-header" style="border-bottom: 1px solid var(--border-subtle); background: linear-gradient(135deg, rgba(200, 147, 42, 0.1), rgba(17, 23, 38, 0.9));">
+              <div class="card-title-group">
+                <div class="card-icon-badge gold">📅</div>
+                <div>
+                  <h3 class="card-title">Live Section Timetable</h3>
+                  <p class="card-subtitle">Select your group code to instantly view your weekly schedule</p>
+                </div>
               </div>
-              <a href="https://tiet.pages.dev/" target="_blank" class="header-action-btn" style="text-decoration: none; font-size: 0.8rem; padding: 0.4rem 0.8rem;">
-                <span>↗</span> Open in New Tab
-              </a>
             </div>
+            
+            <div style="padding: 1.5rem;">
+              <form id="timetable-search-form" onsubmit="event.preventDefault();">
+                <label class="form-label">Search Group Code (e.g. 1A11, 2C31)</label>
+                <div style="position: relative; margin-bottom: 0.5rem;">
+                  <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 1rem; color: var(--text-muted);">🔍</span>
+                  <input type="text" id="tt-group-search" placeholder="Type here..." class="form-control" style="padding-left: 2.5rem;" autocomplete="off" spellcheck="false">
+                  <div id="tt-search-results" class="tt-search-dropdown"></div>
+                </div>
+                <div id="tt-selected-display" style="min-height: 28px; margin-bottom: 0.5rem;"></div>
+              </form>
+            </div>
+          </div>
+          
+          <!-- Timetable Grid Container -->
+          <div id="tt-loading-state" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+            <div class="lock-badge-pulse" style="width: 24px; height: 24px; margin: 0 auto 1rem; position: static;"></div>
+            Loading timetable data...
+          </div>
+          
+          <div id="tt-error-state" style="display: none; text-align: center; padding: 2rem; color: var(--danger-rose);">
+            Failed to load timetable.
+          </div>
 
-            <!-- Embedded Iframe -->
-            <iframe src="https://tiet.pages.dev/" title="TIET Timetable" style="width: 100%; flex: 1; border: none; background: #fff;"></iframe>
+          <div id="tt-grid-container" style="display: none;">
+            <div style="overflow-x: auto; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);">
+              <table class="tt-native-table" id="tt-native-table">
+                <!-- Rendered via JS -->
+              </table>
+            </div>
           </div>
         </section>
 
@@ -1204,6 +1229,7 @@
   <script src="js/marketplace.js"></script>
   <script src="js/societies.js"></script>
   <script src="js/feed.js"></script>
+  <script src="js/timetable.js"></script>
   <script src="js/app.js"></script>
 
 </body>
