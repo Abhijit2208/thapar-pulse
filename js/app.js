@@ -8,6 +8,7 @@ const App = {
   tickerInterval: null,
 
   init() {
+    this.initAuth();
     this.initProfile();
     this.initNavigation();
     this.initCommandPalette();
@@ -24,10 +25,94 @@ const App = {
     if (window.SocietiesModule) window.SocietiesModule.init();
     if (window.FeedModule) window.FeedModule.init();
 
-    // Show initial welcome toast
-    setTimeout(() => {
-      this.showToast('Welcome to ThaparPulse - Your TIET Campus Companion ⚡', 'info');
-    }, 600);
+    // Show initial welcome toast if authenticated
+    if (localStorage.getItem('thapar_is_authenticated') === 'true') {
+      setTimeout(() => {
+        this.showToast(`Welcome back, ${window.THAPAR_DATA.userProfile.name} ⚡`, 'info');
+      }, 600);
+    }
+  },
+
+  initAuth() {
+    const isAuth = localStorage.getItem('thapar_is_authenticated');
+    const lockScreen = document.getElementById('lock-screen');
+    const lockForm = document.getElementById('form-lock-login');
+    const demoBtn = document.getElementById('btn-quick-demo');
+
+    // Populate lock screen inputs if existing profile exists
+    const p = window.THAPAR_DATA.userProfile;
+    const nameInput = document.getElementById('lock-name-input');
+    const rollInput = document.getElementById('lock-roll-input');
+    const branchInput = document.getElementById('lock-branch-input');
+    const hostelInput = document.getElementById('lock-hostel-input');
+
+    if (nameInput && p.name) nameInput.value = p.name;
+    if (rollInput && p.rollNumber) rollInput.value = p.rollNumber;
+    if (branchInput && p.branch) branchInput.value = p.branch;
+    if (hostelInput && p.hostel) hostelInput.value = p.hostel;
+
+    if (isAuth === 'true' && lockScreen) {
+      lockScreen.classList.add('unlocked');
+    } else if (lockScreen) {
+      lockScreen.classList.remove('unlocked');
+    }
+
+    if (lockForm) {
+      lockForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('lock-name-input').value.trim();
+        const roll = document.getElementById('lock-roll-input').value.trim();
+        const branch = document.getElementById('lock-branch-input').value;
+        const hostel = document.getElementById('lock-hostel-input').value;
+
+        if (!name || !roll) {
+          this.showToast('Please enter your name and roll number', 'error');
+          return;
+        }
+
+        this.unlockPortal(name, roll, branch, hostel);
+      });
+    }
+
+    if (demoBtn) {
+      demoBtn.addEventListener('click', () => {
+        this.unlockPortal('Aarav Sharma', '102203456', 'COE (Computer Engineering)', 'Hostel J (Tower 3)');
+      });
+    }
+  },
+
+  unlockPortal(name, roll, branch, hostel) {
+    const lockScreen = document.getElementById('lock-screen');
+    
+    // Save to user profile
+    this.saveProfile({
+      name,
+      rollNumber: roll,
+      branch,
+      hostel
+    });
+
+    localStorage.setItem('thapar_is_authenticated', 'true');
+
+    if (lockScreen) {
+      lockScreen.classList.add('unlocked');
+    }
+
+    this.showToast(`Welcome, ${name}! ThaparPulse is unlocked ⚡`, 'success');
+  },
+
+  lockPortal() {
+    const lockScreen = document.getElementById('lock-screen');
+    localStorage.setItem('thapar_is_authenticated', 'false');
+
+    if (lockScreen) {
+      lockScreen.classList.remove('unlocked');
+    }
+
+    const nameInput = document.getElementById('lock-name-input');
+    if (nameInput) setTimeout(() => nameInput.focus(), 200);
+
+    this.showToast('Campus portal locked. Please login to enter.', 'info');
   },
 
   initProfile() {
@@ -46,10 +131,16 @@ const App = {
     const nameEls = document.querySelectorAll('.profile-name-val');
     const rollEls = document.querySelectorAll('.profile-roll-val');
     const hostelEls = document.querySelectorAll('.profile-hostel-val');
+    const avatarEl = document.getElementById('sidebar-avatar');
 
     nameEls.forEach(el => el.innerText = p.name);
     rollEls.forEach(el => el.innerText = `${p.rollNumber} • ${p.branch}`);
     hostelEls.forEach(el => el.innerText = p.hostel);
+
+    if (avatarEl && p.name) {
+      const initials = p.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+      avatarEl.innerText = initials || 'TP';
+    }
 
     // Sync profile form values if modal open
     const nameInput = document.getElementById('profile-name-input');
