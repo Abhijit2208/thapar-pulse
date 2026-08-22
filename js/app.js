@@ -280,6 +280,7 @@ const App = {
       rideshare: { title: "Thapar RideShare & Cab Matcher", sub: "Split travel to Rajpura, Chandigarh & Delhi" },
       mess: { title: "Hostel Mess & Campus Food Court", sub: "Live daily menus, edible votes & COS spots" },
       vault: { title: "Academic Vault (PYQs & Notes)", sub: "MST / EST previous year papers & study cheat sheets" },
+      timetable: { title: "Live Section Timetable", sub: "Powered by tiet.pages.dev" },
       bazaar: { title: "TIET Campus Bazaar & Lost-Found", sub: "Buy/sell cycles, appliances, drafters & report items" },
       societies: { title: "Societies & Events Radar", sub: "CCS, OWASP, MLSC, Frosh recruitments & Saturnalia" },
       feed: { title: "Anonymous Campus Feed & Senior Advice", sub: "Peer wisdom, placement hacks & hostel banter" },
