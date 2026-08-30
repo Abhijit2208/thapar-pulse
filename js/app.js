@@ -276,9 +276,10 @@ const App = {
     // Demo Login Preset (Abhijit Tathgir)
     if (demoBtn) {
       demoBtn.addEventListener('click', () => {
-        if (emailInput) emailInput.value = 'abhijit.tathgir@thapar.edu';
+        if (emailInput) emailInput.value = 'abhijit.tathgir@gmail.com';
         if (pwdInput) pwdInput.value = '1026020074';
-        sendOtp('abhijit.tathgir@thapar.edu', '1026020074');
+        updateRealtimeValidation();
+        sendOtp('abhijit.tathgir@gmail.com', '1026020074');
         setTimeout(() => {
           if (otpInput && generatedOtp) {
             otpInput.value = generatedOtp;

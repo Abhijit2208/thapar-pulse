@@ -125,7 +125,7 @@ const THAPAR_DATA = {
   studentRegistry: {
     "1026020074": {
       name: "Abhijit Tathgir",
-      emails: ["abhijit.tathgir@thapar.edu", "abhijit.tathgir@gmail.com", "abhijittathgir@gmail.com", "1026020074@thapar.edu"],
+      emails: ["abhijit.tathgir@gmail.com", "abhijittathgir@gmail.com", "abhijit.tathgir@thapar.edu", "1026020074@thapar.edu"],
       group: "1B44",
       branch: "Civil Engineering (IEP - Univ of Queensland)",
       semester: 1,
@@ -134,7 +134,7 @@ const THAPAR_DATA = {
     },
     "102401742": {
       name: "Aarav Sharma",
-      emails: ["aarav.sharma@thapar.edu", "102401742@thapar.edu", "aaravsharma@gmail.com"],
+      emails: ["aarav.sharma@gmail.com", "aaravsharma@gmail.com", "aarav.sharma@thapar.edu", "102401742@thapar.edu"],
       group: "2CO11",
       branch: "Computer Science & Engineering (COPC)",
       semester: 4,
@@ -143,7 +143,7 @@ const THAPAR_DATA = {
     },
     "102103890": {
       name: "Kabir Malhotra",
-      emails: ["kabir.malhotra@thapar.edu", "102103890@thapar.edu"],
+      emails: ["kabir.malhotra@gmail.com", "kabirmalhotra@gmail.com", "kabir.malhotra@thapar.edu", "102103890@thapar.edu"],
       group: "4CO11",
       branch: "Computer Engineering (COE)",
       semester: 8,
@@ -152,7 +152,7 @@ const THAPAR_DATA = {
     },
     "102315022": {
       name: "Simran Kaur",
-      emails: ["simran.kaur@thapar.edu", "102315022@thapar.edu"],
+      emails: ["simran.kaur@gmail.com", "simrankaur@gmail.com", "simran.kaur@thapar.edu", "102315022@thapar.edu"],
       group: "3CO15",
       branch: "Computer Science & Business Systems (COBS)",
       semester: 6,
@@ -162,7 +162,7 @@ const THAPAR_DATA = {
   },
 
   verifyEmailRollMatch(email, roll) {
-    if (!email || !roll) return { valid: false, reason: "Please enter both Email and Roll Number" };
+    if (!email || !roll) return { valid: false, reason: "Please enter both Gmail ID and Roll Number" };
     const cleanEmail = email.trim().toLowerCase();
     const cleanRoll = roll.trim().replace(/\D/g, '');
 
@@ -173,9 +173,10 @@ const THAPAR_DATA = {
       if (matchesEmail) {
         return { valid: true, student, roll: cleanRoll, email: cleanEmail };
       } else {
+        const expectedGmail = student.emails.find(e => e.endsWith('@gmail.com')) || student.emails[0];
         return { 
           valid: false, 
-          reason: `Email '${cleanEmail}' is NOT registered for Roll Number ${cleanRoll}. Registered address ends with @thapar.edu.` 
+          reason: `Gmail '${cleanEmail}' is NOT registered for Roll Number ${cleanRoll}. Registered Gmail: ${expectedGmail}.` 
         };
       }
     }
@@ -189,29 +190,12 @@ const THAPAR_DATA = {
       if (registeredRoll !== cleanRoll) {
         return {
           valid: false,
-          reason: `Email '${cleanEmail}' is officially registered to Roll Number ${registeredRoll}, not ${cleanRoll}. Access declined.`
+          reason: `Gmail '${cleanEmail}' belongs to Roll Number ${registeredRoll} (${student.name}), not ${cleanRoll}. Access declined.`
         };
       }
     }
 
-    // 3. Institutional standard email format: [roll]@thapar.edu
-    if (cleanEmail === `${cleanRoll}@thapar.edu` || cleanEmail.startsWith(cleanRoll)) {
-      const decoded = this.decodeRollNumber(cleanRoll);
-      return { 
-        valid: true, 
-        student: {
-          name: "TIET Student",
-          rollNumber: cleanRoll,
-          group: "1B44",
-          branch: decoded ? decoded.branchName : "Engineering",
-          semester: decoded ? decoded.semester : 1
-        },
-        roll: cleanRoll,
-        email: cleanEmail
-      };
-    }
-
-    // 4. Matching local name prefix with roll number
+    // 3. Name or Roll matching inside the Gmail localpart (e.g. [name][roll]@gmail.com)
     const localPart = cleanEmail.split('@')[0].toLowerCase();
     if (localPart.includes(cleanRoll) || (cleanRoll.length >= 6 && localPart.includes(cleanRoll.slice(-4)))) {
       const decoded = this.decodeRollNumber(cleanRoll);
@@ -232,14 +216,14 @@ const THAPAR_DATA = {
     // Otherwise decline!
     return {
       valid: false,
-      reason: `Verification Declined: Email '${cleanEmail}' does not match the allotted record for Roll Number ${cleanRoll}.`
+      reason: `Verification Declined: Gmail '${cleanEmail}' does not match the registered records for Roll Number ${cleanRoll}.`
     };
   },
 
   // User Profile Default
   userProfile: {
     name: "Abhijit Tathgir",
-    email: "abhijit.tathgir@thapar.edu",
+    email: "abhijit.tathgir@gmail.com",
     rollNumber: "1026020074",
     group: "1B44",
     branch: "Civil Engineering (IEP - Univ of Queensland)",
