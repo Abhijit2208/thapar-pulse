@@ -572,18 +572,50 @@ button, input, select, textarea {
   flex: 1;
 }
 
-/* Tab View Switcher Logic with Immersive Staggered Entrance */
-.tab-view {
-  display: none;
+/* ==========================================================================
+   SCROLL-DRIVEN INTERACTIVE PORTAL (ALL OPTIONS OPEN ON SCROLL)
+   ========================================================================== */
+.portal-hero-showcase {
+  margin-bottom: 2.5rem;
+  background: linear-gradient(135deg, rgba(225, 29, 72, 0.16), rgba(17, 23, 38, 0.9));
+  border: 1px solid rgba(225, 29, 72, 0.35);
+  border-radius: var(--radius-xl);
+  padding: 2.25rem 2rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 35px rgba(225, 29, 72, 0.15);
+  animation: heroShowcaseEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.tab-view.active {
-  display: block;
-  animation: tabSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+@keyframes heroShowcaseEntrance {
+  0% { opacity: 0; transform: translateY(30px) scale(0.96); filter: blur(8px); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+.portal-hero-showcase::before {
+  content: '';
+  position: absolute;
+  top: -30%;
+  right: -10%;
+  width: 350px;
+  height: 350px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(225, 29, 72, 0.25), transparent 70%);
+  pointer-events: none;
+  animation: pulse-ring 6s ease-in-out infinite alternate;
+}
+
+/* All Sections Stream Continuously On Scroll */
+.tab-view {
+  display: block !important;
+  margin-bottom: 4.5rem;
+  scroll-margin-top: 85px;
+  position: relative;
+  animation: tabSlideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes tabSlideIn {
-  0% { opacity: 0; transform: translateY(20px) scale(0.985); filter: blur(6px); }
+  0% { opacity: 0; transform: translateY(24px) scale(0.985); filter: blur(6px); }
   60% { opacity: 1; filter: blur(0); }
   100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 }

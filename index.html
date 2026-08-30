@@ -217,8 +217,51 @@
         </div>
       </div>
 
-      <!-- Main Content Container -->
+      <!-- Main Content Container (Scroll-Driven Interactive Portal) -->
       <div class="content-body">
+        
+        <!-- ================================================================
+             0. HERO WELCOME SHOWCASE (IMMERSIVE VIDEO STYLE)
+             ================================================================ -->
+        <div class="portal-hero-showcase">
+          <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem;">
+            <span class="ticker-pill" style="background: linear-gradient(135deg, var(--tiet-crimson), var(--tiet-gold));">⚡ TIET Campus OS</span>
+            <span style="font-size: 0.78rem; color: var(--safe-emerald); font-weight: 700;">● Live Session Active</span>
+            <span style="font-size: 0.75rem; background: rgba(245,158,11,0.18); color: var(--tiet-gold); padding: 0.2rem 0.5rem; border-radius: 4px; border: 1px solid rgba(245,158,11,0.3); font-weight: 700;">Allotted Group: 1B44</span>
+          </div>
+
+          <h1 style="font-size: 2.2rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 0.5rem; background: linear-gradient(135deg, #fff 0%, #fca5a5 40%, #fbbf24 80%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            Welcome back, <span class="profile-name-val">Abhijit Tathgir</span> 🚀
+          </h1>
+
+          <p style="font-size: 0.92rem; color: var(--text-secondary); max-width: 780px; margin-bottom: 1.5rem;">
+            TIET Patiala All-in-One Dashboard. Scroll down to automatically explore all live modules — your 75% attendance predictor, allotted class group timetable (1B44), hostel mess menus, cab shares, PYQ vaults, and campus advice.
+          </p>
+
+          <div style="display: flex; gap: 0.65rem; flex-wrap: wrap; align-items: center;">
+            <button class="header-action-btn primary" onclick="App.scrollToSection('tab-dashboard')">
+              <span>📊</span> Attendance Forecaster
+            </button>
+            <button class="header-action-btn" onclick="App.scrollToSection('tab-timetable')" style="background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.4); color: #34d399;">
+              <span>📅</span> Group 1B44 Timetable
+            </button>
+            <button class="header-action-btn" onclick="App.scrollToSection('tab-mess')">
+              <span>🍛</span> Mess Menu
+            </button>
+            <button class="header-action-btn" onclick="App.scrollToSection('tab-rideshare')">
+              <span>🚗</span> Cab Pool
+            </button>
+            <button class="header-action-btn" onclick="App.scrollToSection('tab-vault')">
+              <span>📚</span> PYQs Vault
+            </button>
+            <button class="header-action-btn" onclick="App.scrollToSection('tab-cgpa')">
+              <span>🎯</span> CGPA Calc
+            </button>
+            <button class="header-action-btn" onclick="App.openModal('modal-counselling-status')" style="background: rgba(245,158,11,0.15); border-color: rgba(245,158,11,0.4); color: var(--tiet-gold);">
+              <span>🏛️</span> Allotment Status (1B44)
+            </button>
+          </div>
+        </div>
         
         <!-- ================================================================
              TAB 1: ATTENDANCE & BUNK FORECASTER (DASHBOARD)

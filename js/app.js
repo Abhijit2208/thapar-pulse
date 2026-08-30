@@ -555,67 +555,57 @@ const App = {
   },
 
   initNavigation() {
-    // Desktop & Mobile Tab click handlers
+    // Top Bar Click-to-Scroll handlers
     document.querySelectorAll('[data-tab-target]').forEach(el => {
       el.addEventListener('click', (e) => {
         const target = el.dataset.tabTarget;
-        this.switchTab(target);
-        
-        // Close mobile drawer if open
-        document.querySelector('.app-sidebar').classList.remove('open');
+        const targetId = `tab-${target}`;
+        this.scrollToSection(targetId);
       });
     });
 
-    // Mobile sidebar toggle button
-    const menuBtn = document.getElementById('mobile-menu-btn');
-    if (menuBtn) {
-      menuBtn.addEventListener('click', () => {
-        document.querySelector('.app-sidebar').classList.toggle('open');
-      });
-    }
+    // Initialize ScrollSpy to automatically highlight active tab as you scroll
+    this.initScrollSpy();
   },
 
-  switchTab(tabId) {
-    this.currentTab = tabId;
+  scrollToSection(targetId) {
+    const el = document.getElementById(targetId);
+    if (!el) return;
+    const yOffset = -85; 
+    const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+    window.scrollTo({ top: y, behavior: 'smooth' });
 
-    // Update active nav items
+    const tabId = targetId.replace('tab-', '');
+    this.currentTab = tabId;
     document.querySelectorAll('.nav-item').forEach(item => {
       item.classList.toggle('active', item.dataset.tabTarget === tabId);
     });
+  },
 
-    document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.tabTarget === tabId);
+  initScrollSpy() {
+    const sections = document.querySelectorAll('.tab-view');
+    if (!sections.length) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const tabId = entry.target.id.replace('tab-', '');
+          this.currentTab = tabId;
+          document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.toggle('active', item.dataset.tabTarget === tabId);
+          });
+        }
+      });
+    }, {
+      rootMargin: '-15% 0px -65% 0px',
+      threshold: 0.05
     });
 
-    // Update active view content
-    document.querySelectorAll('.tab-view').forEach(view => {
-      view.classList.toggle('active', view.id === `tab-${tabId}`);
-    });
+    sections.forEach(sec => observer.observe(sec));
+  },
 
-    // Update header title
-    const titles = {
-      dashboard: { title: "Attendance & Safe Bunk Forecaster", sub: "The 75% Rule Protector for Webkiosk" },
-      rideshare: { title: "Thapar RideShare & Cab Matcher", sub: "Split travel to Rajpura, Chandigarh & Delhi" },
-      mess: { title: "Hostel Mess & Campus Food Court", sub: "Live daily menus, edible votes & COS spots" },
-      vault: { title: "Academic Vault (PYQs & Notes)", sub: "MST / EST previous year papers & study cheat sheets" },
-      timetable: { title: "Live Section Timetable", sub: "Powered by tiet.pages.dev" },
-      bazaar: { title: "TIET Campus Bazaar & Lost-Found", sub: "Buy/sell cycles, appliances, drafters & report items" },
-      societies: { title: "Societies & Events Radar", sub: "CCS, OWASP, MLSC, Frosh recruitments & Saturnalia" },
-      feed: { title: "Anonymous Campus Feed & Senior Advice", sub: "Peer wisdom, placement hacks & hostel banter" },
-      cgpa: { title: "Target CGPA & Relative Grade Simulator", sub: "Simulate EST/MST scores to reach your dream CGPA" }
-    };
-
-    const headerTitleEl = document.getElementById('page-header-title');
-    const headerSubEl = document.getElementById('page-header-sub');
-
-    if (headerTitleEl && titles[tabId]) {
-      headerTitleEl.innerText = titles[tabId].title;
-    }
-    if (headerSubEl && titles[tabId]) {
-      headerSubEl.innerText = titles[tabId].sub;
-    }
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  switchTab(tabId) {
+    this.scrollToSection(`tab-${tabId}`);
   },
 
   initCommandPalette() {
