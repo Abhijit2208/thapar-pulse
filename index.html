@@ -26,31 +26,63 @@
       </div>
       
       <h2 class="lock-title">ThaparPulse Gateway</h2>
-      <p class="lock-subtitle">Enter your TIET Roll Number & Batch Group to unlock</p>
-      <div style="display: inline-block; background: rgba(16, 185, 129, 0.15); color: var(--safe-emerald); font-size: 0.75rem; font-weight: 700; padding: 0.3rem 0.6rem; border-radius: 4px; margin-bottom: 1rem; border: 1px solid rgba(16, 185, 129, 0.3);">⚡ Real-Time TIET Webkiosk & Timetable Sync</div>
+      <p class="lock-subtitle" id="lock-card-subtitle">Enter your TIET Registered Email & Roll Number Password</p>
+      <div style="display: inline-block; background: rgba(16, 185, 129, 0.15); color: var(--safe-emerald); font-size: 0.75rem; font-weight: 700; padding: 0.3rem 0.6rem; border-radius: 4px; margin-bottom: 1rem; border: 1px solid rgba(16, 185, 129, 0.3);" id="lock-security-badge">🔒 100% Secure • Live 2FA OTP Protected</div>
 
+      <!-- Step 1: Credentials Form -->
       <form class="lock-form" id="form-lock-login">
         <div class="form-group" style="margin-bottom: 0;">
-          <label class="form-label">TIET Roll Number (Enrollment Number)</label>
-          <input type="text" id="lock-roll-input" placeholder="e.g. 102401742" pattern="[0-9]{6,12}" required class="form-control" autocomplete="username">
-          <p id="lock-batch-hint" style="font-size: 0.72rem; color: var(--tiet-gold); margin-top: 0.35rem; font-weight: 600;"></p>
+          <label class="form-label">Username (Registered Email ID)</label>
+          <input type="email" id="lock-email-input" placeholder="e.g. asharma@thapar.edu" required class="form-control" autocomplete="username">
         </div>
 
         <div class="form-group" style="margin-bottom: 0;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <label class="form-label" style="margin-bottom: 0.25rem;">Password (Batch Group)</label>
+            <label class="form-label" style="margin-bottom: 0.25rem;">Password (TIET Roll Number)</label>
             <span id="toggle-pwd-btn" style="font-size: 0.72rem; color: var(--text-muted); cursor: pointer; user-select: none;">👁️ Show</span>
           </div>
-          <input type="password" id="lock-password-input" placeholder="e.g. 2CO11 or 1A11" required class="form-control" style="text-transform: uppercase;" autocomplete="current-password">
-          <p id="lock-group-hint" style="font-size: 0.72rem; color: var(--safe-emerald); margin-top: 0.35rem; font-weight: 600; display: none;"></p>
+          <input type="password" id="lock-password-input" placeholder="e.g. 102401742" pattern="[0-9]{6,12}" required class="form-control" autocomplete="current-password">
+          <p id="lock-batch-hint" style="font-size: 0.72rem; color: var(--tiet-gold); margin-top: 0.35rem; font-weight: 600;"></p>
         </div>
 
-        <button type="submit" class="btn-unlock-portal" id="btn-unlock-portal">
-          <span>🔓</span> Unlock Campus Portal
+        <button type="submit" class="btn-unlock-portal" id="btn-request-otp">
+          <span>📩</span> Send Live OTP
         </button>
 
         <button type="button" class="btn-quick-demo" id="btn-quick-demo">
-          ⚡ Quick Demo Login (Batch Preset)
+          ⚡ Quick Demo Login (Fresher Preset)
+        </button>
+      </form>
+
+      <!-- Step 2: Live OTP Verification Form (Hidden Initially) -->
+      <form class="lock-form" id="form-lock-otp" style="display: none;">
+        <div class="otp-live-badge" id="otp-live-badge">
+          <div>
+            <div style="font-size: 0.72rem; color: var(--text-muted); text-align: left;">Live OTP Sent to <span id="otp-target-email" style="color: #fff; font-weight: 700;"></span></div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.2rem;">
+              <span class="otp-code-highlight" id="otp-display-code">------</span>
+            </div>
+          </div>
+          <button type="button" class="btn-autofill-otp" id="btn-autofill-otp">📋 Auto-Fill</button>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label" style="text-align: center; display: block;">Enter 6-Digit Live Verification Code</label>
+          <div class="otp-input-wrap">
+            <input type="text" id="lock-otp-input" maxlength="6" pattern="[0-9]{6}" placeholder="······" required class="form-control otp-input-field" autocomplete="one-time-code">
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.35rem;">
+            <span style="font-size: 0.75rem; color: var(--text-muted);" id="otp-timer-text">Resend in <strong style="color: var(--tiet-gold);" id="otp-timer-count">60s</strong></span>
+            <button type="button" id="btn-resend-otp" style="background: none; border: none; font-size: 0.75rem; color: var(--tiet-crimson); cursor: pointer; font-weight: 700; display: none;">🔄 Resend OTP</button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-unlock-portal" id="btn-verify-otp">
+          <span>🔓</span> Verify OTP & Unlock Portal
+        </button>
+
+        <button type="button" class="btn-quick-demo" id="btn-back-to-creds" style="color: var(--text-muted); border-color: var(--border-subtle);">
+          ← Change Email / Roll Number
         </button>
       </form>
     </div>

@@ -37,66 +37,24 @@ const App = {
     const isAuth = localStorage.getItem('thapar_is_authenticated');
     const lockScreen = document.getElementById('lock-screen');
     const lockForm = document.getElementById('form-lock-login');
+    const otpForm = document.getElementById('form-lock-otp');
     const demoBtn = document.getElementById('btn-quick-demo');
 
     // Populate lock screen inputs if existing profile exists
     const p = window.THAPAR_DATA.userProfile;
-    const nameInput = document.getElementById('lock-name-input');
-    const rollInput = document.getElementById('lock-roll-input');
-    const semInput = document.getElementById('lock-sem-input');
-    const branchInput = document.getElementById('lock-branch-input');
-    const hostelInput = document.getElementById('lock-hostel-input');
-    const batchHint = document.getElementById('lock-batch-hint');
-
-    if (nameInput && p.name) nameInput.value = p.name;
-    if (rollInput && p.rollNumber) rollInput.value = p.rollNumber;
-    if (branchInput && p.branch) branchInput.value = p.branch;
-    if (hostelInput && p.hostel) hostelInput.value = p.hostel;
-    if (semInput && p.semester) semInput.value = p.semester;
-
-    // Real-time batch and branch auto-detection on typing roll number
-    if (rollInput) {
-      const updateBatchPreview = () => {
-        const val = rollInput.value.trim();
-        const decoded = window.THAPAR_DATA.decodeRollNumber(val);
-        
-        if (decoded) {
-          if (semInput) semInput.value = decoded.semester;
-          
-          // Match and select branch option
-          if (branchInput) {
-            let found = false;
-            for (let opt of branchInput.options) {
-              if (opt.value.includes(decoded.branchCode) || opt.text.includes(decoded.branchCode)) {
-                branchInput.value = opt.value;
-                found = true;
-                break;
-              }
-            }
-            if (!found) {
-              const newOpt = new Option(decoded.branchName, decoded.branchName, true, true);
-              branchInput.add(newOpt);
-            }
-          }
-
-          if (batchHint) {
-            batchHint.innerText = `✓ Verified TIET: ${decoded.batchString} (${decoded.yearName}) • ${decoded.branchCode} (${decoded.branchName}) • Sem ${decoded.semester}`;
-            batchHint.style.display = 'block';
-          }
-        } else if (batchHint) {
-          batchHint.innerText = '';
-        }
-      };
-
-      rollInput.addEventListener('input', updateBatchPreview);
-      updateBatchPreview();
-    }
-
-    // Real-time Group Code validation & hints
+    const emailInput = document.getElementById('lock-email-input');
     const pwdInput = document.getElementById('lock-password-input');
-    const groupHint = document.getElementById('lock-group-hint');
+    const otpInput = document.getElementById('lock-otp-input');
+    const batchHint = document.getElementById('lock-batch-hint');
     const togglePwdBtn = document.getElementById('toggle-pwd-btn');
+    const autofillBtn = document.getElementById('btn-autofill-otp');
+    const resendOtpBtn = document.getElementById('btn-resend-otp');
+    const backToCredsBtn = document.getElementById('btn-back-to-creds');
 
+    if (emailInput && p.email) emailInput.value = p.email;
+    if (pwdInput && p.rollNumber) pwdInput.value = p.rollNumber;
+
+    // Show / Hide Password Toggle
     if (togglePwdBtn && pwdInput) {
       togglePwdBtn.addEventListener('click', () => {
         if (pwdInput.type === 'password') {
@@ -109,37 +67,167 @@ const App = {
       });
     }
 
-    if (pwdInput && groupHint) {
-      const updateGroupPreview = () => {
-        const val = pwdInput.value.trim().toUpperCase();
-        if (!val) {
-          groupHint.style.display = 'none';
-          return;
-        }
-
-        if (window.TimetableModule && window.TimetableModule.allGroups.length > 0) {
-          const match = window.TimetableModule.allGroups.find(g => g.toUpperCase() === val);
-          if (match) {
-            const yr = window.TimetableModule.yearLabel(match);
-            groupHint.innerText = `✓ Verified Group: ${match} (${yr}) • Timetable Synced`;
-            groupHint.style.color = 'var(--safe-emerald)';
-            groupHint.style.display = 'block';
-          } else {
-            const partials = window.TimetableModule.allGroups.filter(g => g.toUpperCase().startsWith(val));
-            if (partials.length > 0) {
-              groupHint.innerText = `⚡ Matching sections: ${partials.slice(0, 4).join(', ')}${partials.length > 4 ? '...' : ''}`;
-              groupHint.style.color = 'var(--tiet-gold)';
-              groupHint.style.display = 'block';
-            } else {
-              groupHint.innerText = `⚠ Group '${val}' not found in live timetable. Example: 2CO11, 1A11`;
-              groupHint.style.color = 'var(--danger-rose)';
-              groupHint.style.display = 'block';
-            }
+    // Real-time batch decoding when typing Roll Number (Password field)
+    if (pwdInput) {
+      const updateBatchPreview = () => {
+        const val = pwdInput.value.trim();
+        const decoded = window.THAPAR_DATA.decodeRollNumber(val);
+        
+        if (decoded && val.length >= 6) {
+          if (batchHint) {
+            batchHint.innerText = `✓ Verified TIET: ${decoded.batchString} (${decoded.yearName}) • ${decoded.branchCode} (${decoded.branchName}) • Sem ${decoded.semester}`;
+            batchHint.style.display = 'block';
           }
+        } else if (batchHint) {
+          batchHint.innerText = '';
         }
       };
 
-      pwdInput.addEventListener('input', updateGroupPreview);
+      pwdInput.addEventListener('input', updateBatchPreview);
+      updateBatchPreview();
+    }
+
+    let generatedOtp = null;
+    let otpTimerInterval = null;
+    let pendingUserData = null;
+
+    const startOtpTimer = () => {
+      let secondsLeft = 60;
+      const countEl = document.getElementById('otp-timer-count');
+      const timerText = document.getElementById('otp-timer-text');
+      if (resendOtpBtn) resendOtpBtn.style.display = 'none';
+      if (timerText) timerText.style.display = 'inline';
+
+      if (otpTimerInterval) clearInterval(otpTimerInterval);
+      otpTimerInterval = setInterval(() => {
+        secondsLeft--;
+        if (countEl) countEl.innerText = `${secondsLeft}s`;
+        if (secondsLeft <= 0) {
+          clearInterval(otpTimerInterval);
+          if (timerText) timerText.style.display = 'none';
+          if (resendOtpBtn) resendOtpBtn.style.display = 'inline';
+        }
+      }, 1000);
+    };
+
+    const sendOtp = (email, roll) => {
+      generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+      const decoded = window.THAPAR_DATA.decodeRollNumber(roll);
+
+      // Name extrapolation from email
+      let name = "TIET Student";
+      if (email.includes('@')) {
+        const local = email.split('@')[0];
+        const cleaned = local.replace(/[._\d]/g, ' ').trim();
+        if (cleaned) {
+          name = cleaned.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        }
+      }
+
+      pendingUserData = {
+        name,
+        email,
+        roll,
+        branch: decoded ? decoded.branchName : "COE",
+        semester: decoded ? decoded.semester : 4,
+        hostel: "Hostel J (Tower 3)"
+      };
+
+      // Switch to OTP Form
+      if (lockForm) lockForm.style.display = 'none';
+      if (otpForm) otpForm.style.display = 'flex';
+      
+      const targetEmailEl = document.getElementById('otp-target-email');
+      const displayCodeEl = document.getElementById('otp-display-code');
+      if (targetEmailEl) targetEmailEl.innerText = email;
+      if (displayCodeEl) displayCodeEl.innerText = generatedOtp;
+
+      startOtpTimer();
+      this.showToast(`📩 Live OTP sent to ${email}: [ ${generatedOtp} ]`, 'success');
+
+      if (otpInput) {
+        otpInput.value = '';
+        setTimeout(() => otpInput.focus(), 200);
+      }
+    };
+
+    // Step 1: Request OTP Form
+    if (lockForm) {
+      lockForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = emailInput ? emailInput.value.trim() : '';
+        const roll = pwdInput ? pwdInput.value.trim() : '';
+
+        if (!email || !roll) {
+          this.showToast('Please enter your TIET Email and Roll Number Password', 'error');
+          return;
+        }
+
+        if (roll.length < 6) {
+          this.showToast('Roll Number must be at least 6 digits', 'error');
+          return;
+        }
+
+        sendOtp(email, roll);
+      });
+    }
+
+    // Step 2: Auto-Fill OTP Button
+    if (autofillBtn && otpInput) {
+      autofillBtn.addEventListener('click', () => {
+        if (generatedOtp) {
+          otpInput.value = generatedOtp;
+          this.showToast('✓ OTP Auto-filled', 'info');
+          otpInput.focus();
+        }
+      });
+    }
+
+    // Step 2: Resend OTP
+    if (resendOtpBtn) {
+      resendOtpBtn.addEventListener('click', () => {
+        if (pendingUserData) {
+          sendOtp(pendingUserData.email, pendingUserData.roll);
+          this.showToast('🔄 New Live OTP Generated', 'info');
+        }
+      });
+    }
+
+    // Step 2: Back to Credentials
+    if (backToCredsBtn) {
+      backToCredsBtn.addEventListener('click', () => {
+        if (otpTimerInterval) clearInterval(otpTimerInterval);
+        if (otpForm) otpForm.style.display = 'none';
+        if (lockForm) lockForm.style.display = 'flex';
+      });
+    }
+
+    // Step 2: Verify OTP and Unlock
+    if (otpForm) {
+      otpForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const enteredOtp = otpInput ? otpInput.value.trim() : '';
+
+        if (!enteredOtp) {
+          this.showToast('Please enter the 6-digit verification code', 'error');
+          return;
+        }
+
+        if (enteredOtp !== generatedOtp) {
+          this.showToast('❌ Invalid OTP Code. Please check the code above.', 'error');
+          return;
+        }
+
+        if (pendingUserData) {
+          this.unlockPortal(
+            pendingUserData.name,
+            pendingUserData.roll,
+            pendingUserData.branch,
+            pendingUserData.hostel,
+            pendingUserData.semester
+          );
+        }
+      });
     }
 
     if (isAuth === 'true' && lockScreen) {
@@ -148,41 +236,17 @@ const App = {
       lockScreen.classList.remove('unlocked');
     }
 
-    if (lockForm) {
-      lockForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const roll = document.getElementById('lock-roll-input').value.trim();
-        const pwd = document.getElementById('lock-password-input').value.trim().toUpperCase();
-
-        if (!roll || !pwd) {
-          this.showToast('Please enter your roll number and batch group password', 'error');
-          return;
-        }
-
-        const decoded = window.THAPAR_DATA.decodeRollNumber(roll);
-        const name = "Student";
-        const branch = decoded ? decoded.branchName : "COE";
-        const sem = decoded ? decoded.semester : 4;
-        const hostel = "Day Scholar";
-        
-        if (window.TimetableModule && window.TimetableModule.allGroups.length > 0) {
-            if (!window.TimetableModule.allGroups.includes(pwd)) {
-                this.showToast(`Invalid Group '${pwd}'. Please enter a valid section (e.g. 2CO11, 1A11)`, 'error');
-                return;
-            }
-            window.TimetableModule.selectGroup(pwd);
-        }
-
-        this.unlockPortal(name, roll, branch, hostel, sem);
-      });
-    }
-
+    // Demo Login Preset
     if (demoBtn) {
       demoBtn.addEventListener('click', () => {
-        if (window.TimetableModule && window.TimetableModule.allGroups.length > 0) {
-          window.TimetableModule.selectGroup('2CO11');
-        }
-        this.unlockPortal('Aarav Sharma', '102401742', 'Computer Science & Engineering (COPC)', 'Hostel J (Tower 3)', 4);
+        if (emailInput) emailInput.value = 'aarav.sharma@thapar.edu';
+        if (pwdInput) pwdInput.value = '102401742';
+        sendOtp('aarav.sharma@thapar.edu', '102401742');
+        setTimeout(() => {
+          if (otpInput && generatedOtp) {
+            otpInput.value = generatedOtp;
+          }
+        }, 300);
       });
     }
   },

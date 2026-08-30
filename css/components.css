@@ -155,6 +155,71 @@
   border-color: var(--tiet-gold);
 }
 
+.otp-input-wrap {
+  position: relative;
+  margin: 0.5rem 0;
+}
+
+.otp-input-field {
+  font-size: 1.6rem;
+  letter-spacing: 0.45em;
+  text-align: center;
+  font-family: monospace;
+  font-weight: 700;
+  color: var(--tiet-gold);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1.5px solid rgba(245, 158, 11, 0.4);
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  width: 100%;
+}
+
+.otp-input-field:focus {
+  outline: none;
+  border-color: var(--tiet-gold);
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+}
+
+.otp-live-badge {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px dashed rgba(16, 185, 129, 0.4);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 0.85rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.otp-live-badge .otp-code-highlight {
+  font-family: monospace;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--safe-emerald);
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  letter-spacing: 0.15em;
+}
+
+.btn-autofill-otp {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid var(--safe-emerald);
+  color: var(--safe-emerald);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.25rem 0.55rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-autofill-otp:hover {
+  background: var(--safe-emerald);
+  color: #000;
+}
+
 /* --------------------------------------------------------------------------
    1. DASHBOARD & ATTENDANCE MODULE
    -------------------------------------------------------------------------- */
