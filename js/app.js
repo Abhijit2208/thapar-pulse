@@ -386,6 +386,12 @@ const App = {
   unlockPortal(name, roll, branch, hostel, semester = 1, group = '1B44') {
     const lockScreen = document.getElementById('lock-screen');
     
+    // Create and attach dynamic shockwave ripple for cinematic unlock
+    const shockwave = document.createElement('div');
+    shockwave.className = 'unlock-shockwave';
+    document.body.appendChild(shockwave);
+    setTimeout(() => shockwave.remove(), 1000);
+
     // Save to user profile
     this.saveProfile({
       name,
@@ -415,7 +421,37 @@ const App = {
       lockScreen.classList.add('unlocked');
     }
 
+    // Trigger dashboard cascade entrance animations
+    const dashboard = document.getElementById('tab-dashboard');
+    if (dashboard) {
+      dashboard.classList.remove('active');
+      void dashboard.offsetWidth; // trigger DOM reflow
+      dashboard.classList.add('active');
+    }
+
+    // Animate overall attendance percentage counter
+    this.animateNumberCounter('metric-overall-pct', 0, 82.4, '%', 1200);
+
     this.showToast(`Welcome, ${name}! ThaparPulse is unlocked for Semester ${semester} ⚡`, 'success');
+  },
+
+  animateNumberCounter(elementId, startVal, endVal, suffix = '', duration = 1000) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    const startTime = performance.now();
+    const isFloat = endVal % 1 !== 0;
+
+    const update = (now) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      const current = startVal + (endVal - startVal) * ease;
+      el.innerText = (isFloat ? current.toFixed(1) : Math.round(current)) + suffix;
+      if (progress < 1) {
+        requestAnimationFrame(update);
+      }
+    };
+    requestAnimationFrame(update);
   },
 
   lockPortal() {

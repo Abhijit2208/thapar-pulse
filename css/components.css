@@ -106,9 +106,27 @@
 
 .lock-screen-wrapper.unlocked {
   opacity: 0;
-  transform: scale(1.06) translateY(-30px);
+  transform: scale(1.18) translateY(-40px);
+  filter: blur(14px);
   pointer-events: none;
   visibility: hidden;
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), transform 0.75s cubic-bezier(0.16, 1, 0.3, 1), filter 0.75s ease, visibility 0.75s ease;
+}
+
+/* Cinematic Shockwave on Portal Unlock */
+.unlock-shockwave {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  pointer-events: none;
+  background: radial-gradient(circle at center, rgba(225, 29, 72, 0.5) 0%, rgba(245, 158, 11, 0.35) 35%, transparent 70%);
+  animation: shockwaveExpand 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes shockwaveExpand {
+  0% { transform: scale(0.15); opacity: 1; filter: blur(4px); }
+  60% { opacity: 0.8; }
+  100% { transform: scale(3); opacity: 0; filter: blur(30px); }
 }
 
 /* Lock Card — Glassmorphism with glow */
@@ -648,13 +666,22 @@
   padding: 1.25rem;
   position: relative;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  animation: subjectCardFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: subjectCardFadeIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes subjectCardFadeIn {
-  from { opacity: 0; transform: translateY(18px); filter: blur(4px); }
-  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+  from { opacity: 0; transform: translateY(24px) scale(0.97); filter: blur(6px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 }
+
+.attendance-grid .subject-card:nth-child(1) { animation-delay: 0.04s; }
+.attendance-grid .subject-card:nth-child(2) { animation-delay: 0.08s; }
+.attendance-grid .subject-card:nth-child(3) { animation-delay: 0.12s; }
+.attendance-grid .subject-card:nth-child(4) { animation-delay: 0.16s; }
+.attendance-grid .subject-card:nth-child(5) { animation-delay: 0.20s; }
+.attendance-grid .subject-card:nth-child(6) { animation-delay: 0.24s; }
+.attendance-grid .subject-card:nth-child(7) { animation-delay: 0.28s; }
+.attendance-grid .subject-card:nth-child(8) { animation-delay: 0.32s; }
 
 .subject-card:hover {
   transform: translateY(-5px) scale(1.01);
