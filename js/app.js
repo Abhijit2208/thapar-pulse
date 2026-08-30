@@ -92,6 +92,56 @@ const App = {
       updateBatchPreview();
     }
 
+    // Real-time Group Code validation & hints
+    const pwdInput = document.getElementById('lock-password-input');
+    const groupHint = document.getElementById('lock-group-hint');
+    const togglePwdBtn = document.getElementById('toggle-pwd-btn');
+
+    if (togglePwdBtn && pwdInput) {
+      togglePwdBtn.addEventListener('click', () => {
+        if (pwdInput.type === 'password') {
+          pwdInput.type = 'text';
+          togglePwdBtn.innerText = '🔒 Hide';
+        } else {
+          pwdInput.type = 'password';
+          togglePwdBtn.innerText = '👁️ Show';
+        }
+      });
+    }
+
+    if (pwdInput && groupHint) {
+      const updateGroupPreview = () => {
+        const val = pwdInput.value.trim().toUpperCase();
+        if (!val) {
+          groupHint.style.display = 'none';
+          return;
+        }
+
+        if (window.TimetableModule && window.TimetableModule.allGroups.length > 0) {
+          const match = window.TimetableModule.allGroups.find(g => g.toUpperCase() === val);
+          if (match) {
+            const yr = window.TimetableModule.yearLabel(match);
+            groupHint.innerText = `✓ Verified Group: ${match} (${yr}) • Timetable Synced`;
+            groupHint.style.color = 'var(--safe-emerald)';
+            groupHint.style.display = 'block';
+          } else {
+            const partials = window.TimetableModule.allGroups.filter(g => g.toUpperCase().startsWith(val));
+            if (partials.length > 0) {
+              groupHint.innerText = `⚡ Matching sections: ${partials.slice(0, 4).join(', ')}${partials.length > 4 ? '...' : ''}`;
+              groupHint.style.color = 'var(--tiet-gold)';
+              groupHint.style.display = 'block';
+            } else {
+              groupHint.innerText = `⚠ Group '${val}' not found in live timetable. Example: 2CO11, 1A11`;
+              groupHint.style.color = 'var(--danger-rose)';
+              groupHint.style.display = 'block';
+            }
+          }
+        }
+      };
+
+      pwdInput.addEventListener('input', updateGroupPreview);
+    }
+
     if (isAuth === 'true' && lockScreen) {
       lockScreen.classList.add('unlocked');
     } else if (lockScreen) {
@@ -101,21 +151,26 @@ const App = {
     if (lockForm) {
       lockForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const name = document.getElementById('lock-name-input').value.trim();
         const roll = document.getElementById('lock-roll-input').value.trim();
-        const pwd = document.getElementById('lock-password-input').value.trim();
-        const sem = parseInt(document.getElementById('lock-sem-input').value, 10) || 4;
-        const branch = document.getElementById('lock-branch-input').value;
-        const hostel = document.getElementById('lock-hostel-input').value;
+        const pwd = document.getElementById('lock-password-input').value.trim().toUpperCase();
 
-        if (!name || !roll || !pwd) {
-          this.showToast('Please enter your name, roll number, and password', 'error');
+        if (!roll || !pwd) {
+          this.showToast('Please enter your roll number and batch group password', 'error');
           return;
         }
+
+        const decoded = window.THAPAR_DATA.decodeRollNumber(roll);
+        const name = "Student";
+        const branch = decoded ? decoded.branchName : "COE";
+        const sem = decoded ? decoded.semester : 4;
+        const hostel = "Day Scholar";
         
-        if (pwd.length < 6) {
-          this.showToast('Password must be at least 6 characters for 100% security', 'error');
-          return;
+        if (window.TimetableModule && window.TimetableModule.allGroups.length > 0) {
+            if (!window.TimetableModule.allGroups.includes(pwd)) {
+                this.showToast(`Invalid Group '${pwd}'. Please enter a valid section (e.g. 2CO11, 1A11)`, 'error');
+                return;
+            }
+            window.TimetableModule.selectGroup(pwd);
         }
 
         this.unlockPortal(name, roll, branch, hostel, sem);
@@ -124,6 +179,9 @@ const App = {
 
     if (demoBtn) {
       demoBtn.addEventListener('click', () => {
+        if (window.TimetableModule && window.TimetableModule.allGroups.length > 0) {
+          window.TimetableModule.selectGroup('2CO11');
+        }
         this.unlockPortal('Aarav Sharma', '102401742', 'Computer Science & Engineering (COPC)', 'Hostel J (Tower 3)', 4);
       });
     }

@@ -48,21 +48,33 @@ const THAPAR_DATA = {
       const entryDigit = clean.charAt(0);
       if (entryDigit === '7') entryType = "Lateral Entry / Specialized (LEET)";
       
-      const yearDigits = clean.substring(1, 3);
-      admYear = 2000 + parseInt(yearDigits, 10);
+      // Check if starts with '10' (standard 9-digit TIET roll: 10YYBBBSS)
+      let yearDigits = "24";
+      let bCode = "";
+      if (clean.length >= 9 && clean.startsWith('10')) {
+        yearDigits = clean.substring(2, 4);
+        bCode = clean.substring(4, 7);
+        seqNumber = clean.substring(7);
+      } else if (clean.length >= 8 && (clean.startsWith('1') || clean.startsWith('7'))) {
+        yearDigits = clean.substring(1, 3);
+        bCode = clean.substring(3, 6);
+        seqNumber = clean.substring(6);
+      } else {
+        yearDigits = clean.substring(0, 2);
+        bCode = clean.substring(2, 5);
+      }
 
-      // Extract 3-digit branch code (index 3 to 6)
-      const bCode = clean.substring(3, 6);
+      const parsedYear = parseInt(yearDigits, 10);
+      if (!isNaN(parsedYear)) {
+        admYear = parsedYear < 50 ? 2000 + parsedYear : 1900 + parsedYear;
+      }
+
       if (this.branchCodes[bCode]) {
         branchInfo = this.branchCodes[bCode];
       } else {
         // Fallback for short patterns
         const foundKey = Object.keys(this.branchCodes).find(k => clean.includes(k));
         if (foundKey) branchInfo = this.branchCodes[foundKey];
-      }
-
-      if (clean.length >= 9) {
-        seqNumber = clean.substring(6, 9);
       }
     }
 

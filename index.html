@@ -26,70 +26,23 @@
       </div>
       
       <h2 class="lock-title">ThaparPulse Gateway</h2>
-      <p class="lock-subtitle">Enter your TIET credentials to unlock your campus portal</p>
-      <div style="display: inline-block; background: rgba(16, 185, 129, 0.15); color: var(--safe-emerald); font-size: 0.75rem; font-weight: 700; padding: 0.3rem 0.6rem; border-radius: 4px; margin-bottom: 1rem; border: 1px solid rgba(16, 185, 129, 0.3);">🔒 100% Secure Webkiosk Login</div>
+      <p class="lock-subtitle">Enter your TIET Roll Number & Batch Group to unlock</p>
+      <div style="display: inline-block; background: rgba(16, 185, 129, 0.15); color: var(--safe-emerald); font-size: 0.75rem; font-weight: 700; padding: 0.3rem 0.6rem; border-radius: 4px; margin-bottom: 1rem; border: 1px solid rgba(16, 185, 129, 0.3);">⚡ Real-Time TIET Webkiosk & Timetable Sync</div>
 
       <form class="lock-form" id="form-lock-login">
         <div class="form-group" style="margin-bottom: 0;">
-          <label class="form-label">Student Full Name</label>
-          <input type="text" id="lock-name-input" placeholder="e.g. Aarav Sharma" required class="form-control">
+          <label class="form-label">TIET Roll Number (Enrollment Number)</label>
+          <input type="text" id="lock-roll-input" placeholder="e.g. 102401742" pattern="[0-9]{6,12}" required class="form-control" autocomplete="username">
+          <p id="lock-batch-hint" style="font-size: 0.72rem; color: var(--tiet-gold); margin-top: 0.35rem; font-weight: 600;"></p>
         </div>
 
         <div class="form-group" style="margin-bottom: 0;">
-          <label class="form-label">TIET Roll Number (9 Digits)</label>
-          <input type="text" id="lock-roll-input" placeholder="e.g. 102403456" pattern="[0-9]{6,12}" required class="form-control">
-          <p id="lock-batch-hint" style="font-size: 0.72rem; color: var(--tiet-gold); margin-top: 0.25rem; font-weight: 600;"></p>
-        </div>
-
-        <div class="form-group" style="margin-bottom: 0;">
-          <label class="form-label">Webkiosk Password</label>
-          <input type="password" id="lock-password-input" placeholder="••••••••" required class="form-control">
-        </div>
-
-        <div class="form-row">
-          <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label">Semester / Batch</label>
-            <select id="lock-sem-input" class="form-control">
-              <option value="1">Semester 1 (1st Year • Batch 2025/26)</option>
-              <option value="2">Semester 2 (1st Year • Batch 2025/26)</option>
-              <option value="3">Semester 3 (2nd Year • Batch 2024)</option>
-              <option value="4" selected>Semester 4 (2nd Year • Batch 2024)</option>
-              <option value="5">Semester 5 (3rd Year • Batch 2023)</option>
-              <option value="6">Semester 6 (3rd Year • Batch 2023)</option>
-              <option value="7">Semester 7 (4th Year • Batch 2022)</option>
-              <option value="8">Semester 8 (4th Year • Batch 2022)</option>
-            </select>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label class="form-label" style="margin-bottom: 0.25rem;">Password (Batch Group)</label>
+            <span id="toggle-pwd-btn" style="font-size: 0.72rem; color: var(--text-muted); cursor: pointer; user-select: none;">👁️ Show</span>
           </div>
-
-          <div class="form-group" style="margin-bottom: 0;">
-            <label class="form-label">Branch</label>
-            <select id="lock-branch-input" class="form-control">
-              <option value="COE (Computer Engineering)">COE (Computer Engg)</option>
-              <option value="COPC (Computer Science)">COPC (Computer Science)</option>
-              <option value="ENC (Electronics & Computers)">ENC (Electronics & Computers)</option>
-              <option value="EEC (Electrical & Computer)">EEC (Electrical & Computer)</option>
-              <option value="ME (Mechanical Engineering)">ME (Mechanical)</option>
-              <option value="CE (Civil Engineering)">CE (Civil)</option>
-              <option value="AI & Data Science">AI & Data Science</option>
-              <option value="Biotechnology">Biotechnology</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-group" style="margin-bottom: 0;">
-          <label class="form-label">Hostel / Residence</label>
-          <select id="lock-hostel-input" class="form-control">
-              <option value="Hostel J (Tower 3)">Hostel J (Tower 3)</option>
-              <option value="Hostel M">Hostel M</option>
-              <option value="Hostel H">Hostel H</option>
-              <option value="Hostel K">Hostel K</option>
-              <option value="Hostel B & C">Hostel B & C</option>
-              <option value="Hostel E (Girls)">Hostel E (Girls)</option>
-              <option value="Hostel I (Girls)">Hostel I (Girls)</option>
-              <option value="Hostel PG">Hostel PG</option>
-              <option value="Day Scholar (Patiala)">Day Scholar</option>
-            </select>
-          </div>
+          <input type="password" id="lock-password-input" placeholder="e.g. 2CO11 or 1A11" required class="form-control" style="text-transform: uppercase;" autocomplete="current-password">
+          <p id="lock-group-hint" style="font-size: 0.72rem; color: var(--safe-emerald); margin-top: 0.35rem; font-weight: 600; display: none;"></p>
         </div>
 
         <button type="submit" class="btn-unlock-portal" id="btn-unlock-portal">
@@ -97,7 +50,7 @@
         </button>
 
         <button type="button" class="btn-quick-demo" id="btn-quick-demo">
-          ⚡ Quick Demo Login (Fresher Preset)
+          ⚡ Quick Demo Login (Batch Preset)
         </button>
       </form>
     </div>
