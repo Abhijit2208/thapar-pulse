@@ -221,6 +221,98 @@
 }
 
 /* --------------------------------------------------------------------------
+   0.1 OFFICIAL TIET COUNSELLING STATUS CARD STYLES
+   -------------------------------------------------------------------------- */
+.tiet-couns-card {
+  background: #fdf6e7;
+  color: #1a1a1a;
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  font-family: Arial, sans-serif;
+  border: 1px solid #e2cfab;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  text-align: left;
+}
+
+.tiet-couns-header {
+  text-align: center;
+  border-bottom: 2px solid #8b0000;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.tiet-couns-header h4 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #8b0000;
+  margin: 0 0 0.2rem 0;
+  letter-spacing: 0.02em;
+}
+
+.tiet-couns-header small {
+  font-size: 0.72rem;
+  color: #444;
+  display: block;
+}
+
+.tiet-couns-banner {
+  background: #fef0cd;
+  border: 1px solid #d9b875;
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius-sm);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #222;
+  margin-bottom: 0.75rem;
+}
+
+.tiet-couns-callout {
+  background: #fff8e7;
+  border: 1px solid #4a90e2;
+  border-left: 4px solid #4a90e2;
+  padding: 0.75rem 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  color: #222;
+}
+
+.tiet-couns-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  margin-bottom: 0.75rem;
+}
+
+.tiet-couns-table td {
+  padding: 0.45rem 0.6rem;
+  border: 1px solid #d4c29d;
+}
+
+.tiet-couns-table .td-label {
+  font-weight: 700;
+  color: #333;
+  width: 25%;
+  background: rgba(0,0,0,0.03);
+}
+
+.tiet-couns-table .td-val {
+  color: #111;
+  width: 25%;
+  font-weight: 600;
+}
+
+.tiet-couns-disclaimer {
+  font-size: 0.75rem;
+  color: #2e7d32;
+  font-weight: 600;
+  margin-top: 0.75rem;
+}
+
+/* --------------------------------------------------------------------------
    1. DASHBOARD & ATTENDANCE MODULE
    -------------------------------------------------------------------------- */
 .dashboard-hero {

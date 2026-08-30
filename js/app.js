@@ -113,23 +113,35 @@ const App = {
     const sendOtp = (email, roll) => {
       generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
       const decoded = window.THAPAR_DATA.decodeRollNumber(roll);
+      const cs = window.THAPAR_DATA.counsellingStatus;
 
-      // Name extrapolation from email
-      let name = "TIET Student";
-      if (email.includes('@')) {
+      let name = "Abhijit Tathgir";
+      let branch = "Civil Engineering (IEP - Univ of Queensland)";
+      let sem = 1;
+      let group = "1B44";
+
+      if (roll === cs.enrollmentNumber || roll === '1026020074') {
+        name = cs.applicantName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+        branch = cs.allottedBranch;
+        sem = cs.semester;
+        group = cs.classGroup;
+      } else if (email.includes('@')) {
         const local = email.split('@')[0];
         const cleaned = local.replace(/[._\d]/g, ' ').trim();
         if (cleaned) {
           name = cleaned.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
         }
+        branch = decoded ? decoded.branchName : "COE";
+        sem = decoded ? decoded.semester : 1;
       }
 
       pendingUserData = {
         name,
         email,
         roll,
-        branch: decoded ? decoded.branchName : "COE",
-        semester: decoded ? decoded.semester : 4,
+        group,
+        branch,
+        semester: sem,
         hostel: "Hostel J (Tower 3)"
       };
 
@@ -224,7 +236,8 @@ const App = {
             pendingUserData.roll,
             pendingUserData.branch,
             pendingUserData.hostel,
-            pendingUserData.semester
+            pendingUserData.semester,
+            pendingUserData.group
           );
         }
       });
@@ -236,12 +249,12 @@ const App = {
       lockScreen.classList.remove('unlocked');
     }
 
-    // Demo Login Preset
+    // Demo Login Preset (Abhijit Tathgir)
     if (demoBtn) {
       demoBtn.addEventListener('click', () => {
-        if (emailInput) emailInput.value = 'aarav.sharma@thapar.edu';
-        if (pwdInput) pwdInput.value = '102401742';
-        sendOtp('aarav.sharma@thapar.edu', '102401742');
+        if (emailInput) emailInput.value = 'abhijit.tathgir@thapar.edu';
+        if (pwdInput) pwdInput.value = '1026020074';
+        sendOtp('abhijit.tathgir@thapar.edu', '1026020074');
         setTimeout(() => {
           if (otpInput && generatedOtp) {
             otpInput.value = generatedOtp;
@@ -251,7 +264,7 @@ const App = {
     }
   },
 
-  unlockPortal(name, roll, branch, hostel, semester = 4) {
+  unlockPortal(name, roll, branch, hostel, semester = 1, group = '1B44') {
     const lockScreen = document.getElementById('lock-screen');
     
     // Save to user profile
@@ -260,13 +273,21 @@ const App = {
       rollNumber: roll,
       branch,
       hostel,
-      semester
+      semester,
+      group
     });
 
     // Detect and switch attendance courses according to batch
     if (window.AttendanceModule) {
       window.AttendanceModule.detectBatchFromRoll(roll);
       window.AttendanceModule.switchSemester(semester);
+    }
+
+    // Auto-select Class Group in Timetable
+    if (window.TimetableModule && group) {
+      setTimeout(() => {
+        window.TimetableModule.selectGroup(group);
+      }, 500);
     }
 
     localStorage.setItem('thapar_is_authenticated', 'true');
@@ -334,8 +355,22 @@ const App = {
     if (rollInput) rollInput.value = p.rollNumber;
     if (branchInput) branchInput.value = p.branch;
     if (hostelInput) hostelInput.value = p.hostel;
-    if (semInput) semInput.value = p.semester || 4;
+    if (semInput) semInput.value = p.semester || 1;
     if (targetInput) targetInput.value = p.targetAttendance || 75;
+
+    // Sync Counselling Status modal card fields
+    const cs = window.THAPAR_DATA.counsellingStatus || {};
+    const counsRoll = document.getElementById('couns-card-roll');
+    const counsName = document.getElementById('couns-card-name');
+    const counsGroup = document.getElementById('couns-card-group');
+    const counsBranch = document.getElementById('couns-card-branch');
+    const counsSem = document.getElementById('couns-card-sem');
+
+    if (counsRoll) counsRoll.innerText = p.rollNumber || cs.enrollmentNumber || '1026020074';
+    if (counsName) counsName.innerText = (p.name || cs.applicantName || 'ABHIJIT TATHGIR').toUpperCase();
+    if (counsGroup) counsGroup.innerText = p.group || cs.classGroup || '1B44';
+    if (counsBranch) counsBranch.innerText = p.branch || cs.allottedBranch || 'IEP (CIVIL ENGINEERING)';
+    if (counsSem) counsSem.innerText = p.semester || cs.semester || 1;
   },
 
   saveProfile(updated) {

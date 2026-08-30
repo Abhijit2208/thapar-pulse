@@ -102,14 +102,39 @@ const THAPAR_DATA = {
     };
   },
 
+  // Official TIET Counselling Student Status Database (from CounsStudentStatus.jsp)
+  counsellingStatus: {
+    session: "SESSION 2026-2027",
+    enrollmentNumber: "1026020074",
+    classGroup: "1B44",
+    applicantName: "ABHIJIT TATHGIR",
+    fatherName: "SURINDER KUMAR TATHGIR",
+    pcmPercent: "98",
+    tietNo: "102346",
+    jeePercentile: "64.5828137",
+    jeeRank: "573901",
+    applicationNo: "BE/BTECH/2026/102346",
+    categoryDescription: "CHILDREN OF TIET EMPLOYEES",
+    allottedProgram: "BE/BTech",
+    allottedBranch: "IEP between TIET and University of Queensland (CIVIL ENGINEERING)",
+    semester: 1,
+    seatAllottedCategory: "INTERNATIONAL ENGG. PROG."
+  },
+
   // User Profile Default
   userProfile: {
-    name: "Aarav Sharma",
-    rollNumber: "102401742",
-    branch: "Computer Science & Engineering (COPC)",
-    semester: 4,
+    name: "Abhijit Tathgir",
+    email: "abhijit.tathgir@thapar.edu",
+    rollNumber: "1026020074",
+    group: "1B44",
+    branch: "Civil Engineering (IEP - Univ of Queensland)",
+    semester: 1,
     hostel: "Hostel J (Tower 3)",
-    targetAttendance: 75
+    targetAttendance: 75,
+    fatherName: "Surinder Kumar Tathgir",
+    applicationNo: "BE/BTECH/2026/102346",
+    jeeRank: "573901",
+    pcmPercent: "98%"
   },
 
   // Semester-wise realistic TIET courses database

@@ -141,6 +141,12 @@
           <span>CGPA Target Calc</span>
         </div>
 
+        <div class="nav-item" onclick="App.openModal('modal-counselling-status')" id="nav-counselling" style="cursor: pointer;">
+          <span class="nav-icon">🏛️</span>
+          <span>Allotment Status</span>
+          <span class="nav-badge" style="background: rgba(245, 158, 11, 0.2); color: var(--tiet-gold); border-color: rgba(245, 158, 11, 0.4);">1B44</span>
+        </div>
+
         <span class="nav-label" style="margin-top: 0.75rem;">Campus Life & Community</span>
 
         <div class="nav-item" data-tab-target="bazaar" id="nav-bazaar">
@@ -1159,7 +1165,93 @@
         <button type="submit" class="header-action-btn primary" style="width: 100%; justify-content: center; padding: 0.75rem;">
           Save Profile Changes
         </button>
+
+        <button type="button" class="header-action-btn" onclick="App.openModal('modal-counselling-status')" style="width: 100%; justify-content: center; margin-top: 0.6rem; background: rgba(245, 158, 11, 0.15); color: var(--tiet-gold); border-color: rgba(245, 158, 11, 0.35);">
+          🎓 View Official TIET Counselling Allotment (Class 1B44)
+        </button>
       </form>
+    </div>
+  </div>
+
+  <!-- 8. Official TIET Counselling Status Modal (CounsStudentStatus.jsp replica) -->
+  <div class="modal-backdrop" id="modal-counselling-status">
+    <div class="modal-card" style="max-width: 780px; padding: 0; overflow: hidden; border-color: #d9b875;">
+      <div style="background: #e8d0a0; padding: 0.6rem 1rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #c9a765;">
+        <span style="font-size: 0.85rem; font-weight: 700; color: #4a2810;">🏛️ Thapar University Admission &amp; Counselling Portal</span>
+        <button class="modal-close-btn" style="position: static; color: #4a2810;">✕</button>
+      </div>
+
+      <div class="tiet-couns-card" id="tiet-couns-live-container">
+        <!-- Header -->
+        <div class="tiet-couns-header">
+          <h4>THAPAR INSTITUTE OF ENGINEERING &amp; TECHNOLOGY, PATIALA</h4>
+          <small>Established u/s 3 of the UGC act, 1956 vide Notification No. F.9-12/84-U.3 of Gol</small>
+          <div style="font-weight: 800; font-size: 0.88rem; color: #333; margin-top: 0.25rem;">SESSION 2026-2027</div>
+        </div>
+
+        <!-- Top Row: Enrollment & Class Group -->
+        <div class="tiet-couns-banner">
+          <div>Enrollment Number : <span style="font-family: monospace; color: #8b0000; font-size: 1.05rem;" id="couns-card-roll">1026020074</span></div>
+          <div>Class Group : <span style="background: #8b0000; color: #fff; padding: 0.15rem 0.6rem; border-radius: 4px; font-family: monospace;" id="couns-card-group">1B44</span></div>
+        </div>
+
+        <!-- Callout Banner -->
+        <div class="tiet-couns-callout">
+          <strong>Please begin attending lectures, labs, and tutorials according to the schedule for your new Class Group</strong><br>
+          <a href="#timetable" onclick="App.closeAllModals(); App.switchTab('timetable');" style="color: #0b5ed7; font-weight: 700; text-decoration: underline; display: inline-block; margin-top: 0.35rem;">
+            📅 View Timetable UG &amp; PG (2026-27 Odd) for Group 1B44 ➔
+          </a>
+        </div>
+
+        <!-- Details Table -->
+        <table class="tiet-couns-table">
+          <tbody>
+            <tr>
+              <td class="td-label">Applicant Name :</td>
+              <td class="td-val" id="couns-card-name">ABHIJIT TATHGIR</td>
+              <td class="td-label">Father's Name :</td>
+              <td class="td-val">SURINDER KUMAR TATHGIR</td>
+            </tr>
+            <tr>
+              <td class="td-label">PCM (%) :</td>
+              <td class="td-val">98</td>
+              <td class="td-label">TIET No. :</td>
+              <td class="td-val">102346</td>
+            </tr>
+            <tr>
+              <td class="td-label">JEE Percentile (BEST) :</td>
+              <td class="td-val">64.5828137</td>
+              <td class="td-label">JEE All India Rank :</td>
+              <td class="td-val">573901</td>
+            </tr>
+            <tr>
+              <td class="td-label">Application No. :</td>
+              <td class="td-val">BE/BTECH/2026/102346</td>
+              <td class="td-label">Category Description:</td>
+              <td class="td-val">CHILDREN OF TIET EMPLOYEES</td>
+            </tr>
+            <tr>
+              <td class="td-label">Allotted Program :</td>
+              <td class="td-val">BE/BTech</td>
+              <td class="td-label">Semester :</td>
+              <td class="td-val" id="couns-card-sem">1</td>
+            </tr>
+            <tr>
+              <td class="td-label">Allotted Branch :</td>
+              <td class="td-val" colspan="3" style="color: #8b0000; font-weight: 700;" id="couns-card-branch">IEP between TIET and University of Queensland (CIVIL ENGINEERING)</td>
+            </tr>
+            <tr>
+              <td class="td-label">Seat Allotted Category:</td>
+              <td class="td-val" colspan="3">INTERNATIONAL ENGG. PROG.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Disclaimer -->
+        <div class="tiet-couns-disclaimer">
+          <strong style="color: #d32f2f;">Disclaimer :</strong> While all care has been taken to ensure accuracy of the above data, the same is subject to re-verification/correction at an appropriate time.
+        </div>
+      </div>
     </div>
   </div>
 
