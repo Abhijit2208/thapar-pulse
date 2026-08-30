@@ -98,134 +98,117 @@
   <div class="app-container">
     
     <!-- ====================================================================
-         1. SIDEBAR NAVIGATION
+         UNIFIED FLOATING TOP BAR (ALL PANELS IN ONE BAR)
          ==================================================================== -->
-    <aside class="app-sidebar" id="app-sidebar">
-      <!-- Brand Logo -->
-      <div class="brand-section">
+    <header class="unified-top-bar" id="unified-top-bar">
+      <!-- 1. Brand Logo -->
+      <div class="bar-brand" onclick="App.switchTab('dashboard')" title="ThaparPulse Home">
         <div class="brand-logo-badge">TP</div>
         <div class="brand-text">
           <h1>ThaparPulse</h1>
-          <p>TIET Patiala • OS</p>
+          <p>TIET PATIALA</p>
         </div>
       </div>
 
-      <!-- Navigation Links -->
-      <nav class="nav-menu">
-        <span class="nav-label">Academic & Daily</span>
-        
+      <!-- 2. Consolidated Horizontal Navigation Segment (All Panels In One Bar) -->
+      <nav class="bar-nav-menu" id="bar-nav-menu">
         <div class="nav-item active" data-tab-target="dashboard" id="nav-dashboard">
           <span class="nav-icon">📊</span>
-          <span>Attendance & Bunk</span>
-          <span class="nav-badge live">75% Rule</span>
+          <span>Attendance</span>
+          <span class="nav-badge live">75%</span>
         </div>
 
         <div class="nav-item" data-tab-target="rideshare" id="nav-rideshare">
           <span class="nav-icon">🚗</span>
-          <span>RideShare & Cabs</span>
+          <span>Cabs</span>
           <span class="nav-badge">Pool</span>
         </div>
 
         <div class="nav-item" data-tab-target="mess" id="nav-mess">
           <span class="nav-icon">🍛</span>
-          <span>Mess Menu & Food</span>
+          <span>Mess</span>
           <span class="nav-badge">Live</span>
         </div>
 
         <div class="nav-item" data-tab-target="vault" id="nav-vault">
           <span class="nav-icon">📚</span>
-          <span>Academic PYQs Vault</span>
+          <span>Vault</span>
         </div>
         
         <div class="nav-item" data-tab-target="timetable" id="nav-timetable">
           <span class="nav-icon">📅</span>
-          <span>Live Timetable</span>
-          <span class="nav-badge new">New</span>
+          <span>Timetable</span>
+          <span class="nav-badge new" style="background: rgba(16,185,129,0.2); color: var(--safe-emerald);">1B44</span>
         </div>
 
         <div class="nav-item" data-tab-target="cgpa" id="nav-cgpa">
           <span class="nav-icon">🎯</span>
-          <span>CGPA Target Calc</span>
+          <span>CGPA</span>
         </div>
 
         <div class="nav-item" onclick="App.openModal('modal-counselling-status')" id="nav-counselling" style="cursor: pointer;">
           <span class="nav-icon">🏛️</span>
-          <span>Allotment Status</span>
+          <span>Allotment</span>
           <span class="nav-badge" style="background: rgba(245, 158, 11, 0.2); color: var(--tiet-gold); border-color: rgba(245, 158, 11, 0.4);">1B44</span>
         </div>
 
-        <span class="nav-label" style="margin-top: 0.75rem;">Campus Life & Community</span>
-
         <div class="nav-item" data-tab-target="bazaar" id="nav-bazaar">
           <span class="nav-icon">🛍️</span>
-          <span>Campus Bazaar & LF</span>
+          <span>Bazaar</span>
         </div>
 
         <div class="nav-item" data-tab-target="societies" id="nav-societies">
           <span class="nav-icon">⚡</span>
-          <span>Societies & Fests</span>
+          <span>Societies</span>
           <span class="nav-badge">Hiring</span>
         </div>
 
         <div class="nav-item" data-tab-target="feed" id="nav-feed">
           <span class="nav-icon">💬</span>
-          <span>Thapar Advice Feed</span>
+          <span>Feed</span>
         </div>
       </nav>
 
-      <!-- Sidebar Footer / User Profile -->
-      <div class="sidebar-footer" style="display: flex; flex-direction: column; gap: 0.5rem;">
-        <div class="user-quick-profile" onclick="App.openModal('modal-user-profile')" title="Edit Profile & Target Attendance">
-          <div class="user-avatar" id="sidebar-avatar">AS</div>
-          <div class="user-info">
-            <h4 class="user-name profile-name-val">Aarav Sharma</h4>
-            <p class="user-roll profile-roll-val">102203456 • COE</p>
-          </div>
-          <span style="font-size: 0.8rem; color: var(--text-muted);">⚙️</span>
+      <!-- 3. Actions & Profile Group in the Same Bar -->
+      <div class="bar-actions-group">
+        <!-- Quick Search -->
+        <div class="bar-search-trigger" id="global-search-trigger" title="Command Palette (Ctrl + K)">
+          <span>🔍</span>
+          <span class="search-kbd">Ctrl K</span>
         </div>
 
-        <button class="header-action-btn" onclick="App.lockPortal()" style="width: 100%; justify-content: center; font-size: 0.78rem; padding: 0.4rem; background: rgba(255,255,255,0.03);" title="Lock screen or switch student account">
-          <span>🔒</span> Lock / Switch Student
+        <!-- Add Subject -->
+        <button class="header-action-btn primary compact" onclick="App.openModal('modal-add-subject')" title="Add Subject">
+          <span>+</span> <span class="hide-mobile">Subject</span>
+        </button>
+
+        <!-- User Profile Pill -->
+        <div class="user-pill-chip" onclick="App.openModal('modal-user-profile')" title="Edit Profile & Target Attendance">
+          <div class="user-avatar" id="sidebar-avatar">AT</div>
+          <div class="user-pill-text hide-mobile">
+            <span class="profile-name-val">Abhijit Tathgir</span>
+            <small class="profile-roll-val">1026020074 • EEC</small>
+          </div>
+          <span style="font-size: 0.7rem; color: var(--text-muted);">⚙️</span>
+        </div>
+
+        <!-- Theme Toggle -->
+        <button class="bar-icon-btn" id="theme-toggle-btn" title="Toggle Dark/Light Mode">
+          <span>🌓</span>
+        </button>
+
+        <!-- Lock Portal -->
+        <button class="bar-icon-btn lock" onclick="App.lockPortal()" title="Lock Screen / Switch Student">
+          <span>🔒</span>
         </button>
       </div>
-    </aside>
+    </header>
 
     <!-- ====================================================================
-         2. MAIN VIEWPORT WRAPPER
+         2. MAIN VIEWPORT WRAPPER (FULL WIDTH IMMERSIVE CANVAS)
          ==================================================================== -->
-    <main class="main-wrapper">
+    <main class="main-wrapper full-width">
       
-      <!-- Top Sticky Header -->
-      <header class="top-header">
-        <div class="header-left">
-          <button class="menu-toggle-btn" id="mobile-menu-btn" aria-label="Toggle menu">☰</button>
-          <div class="page-title-box">
-            <h2 id="page-header-title">Attendance & Safe Bunk Forecaster</h2>
-            <p id="page-header-sub">The 75% Rule Protector for Webkiosk</p>
-          </div>
-        </div>
-
-        <!-- Global Search / Command Palette Trigger -->
-        <div class="header-search" id="global-search-trigger">
-          <div class="search-input-wrapper" style="cursor: pointer;">
-            <span>🔍</span>
-            <input type="text" placeholder="Search subjects, cabs, mess, past papers..." readonly style="cursor: pointer;">
-            <span class="search-kbd">Ctrl K</span>
-          </div>
-        </div>
-
-        <!-- Header Actions -->
-        <div class="header-right">
-          <button class="header-action-btn" id="theme-toggle-btn" title="Toggle Dark/Light Mode">
-            <span>🌓</span>
-          </button>
-
-          <button class="header-action-btn primary" onclick="App.openModal('modal-add-subject')">
-            <span>+</span> Add Subject
-          </button>
-        </div>
-      </header>
-
       <!-- Live Campus Alerts Ticker -->
       <div class="campus-live-ticker">
         <span class="ticker-pill">Campus Pulse</span>
