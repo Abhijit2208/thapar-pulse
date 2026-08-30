@@ -469,7 +469,7 @@
 }
 
 .stat-overview-card {
-  background: linear-gradient(135deg, rgba(225, 29, 72, 0.15), rgba(17, 23, 38, 0.95));
+  background: linear-gradient(135deg, rgba(225, 29, 72, 0.18), rgba(17, 23, 38, 0.95));
   border: 1px solid var(--border-crimson);
   border-radius: var(--radius-xl);
   padding: 1.75rem;
@@ -478,6 +478,13 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(225, 29, 72, 0.12);
+  animation: heroCardEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes heroCardEntrance {
+  0% { opacity: 0; transform: translateY(24px) scale(0.98); filter: blur(4px); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 }
 
 .stat-overview-card::before {
@@ -485,11 +492,24 @@
   position: absolute;
   top: -20%;
   right: -10%;
-  width: 250px;
-  height: 250px;
+  width: 280px;
+  height: 280px;
   border-radius: 50%;
   background: radial-gradient(circle, var(--tiet-crimson-glow) 0%, transparent 70%);
+  animation: pulse-ring 4s ease-in-out infinite alternate;
   pointer-events: none;
+}
+
+.stat-overview-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--tiet-crimson), var(--tiet-gold), var(--purple-accent), var(--tiet-crimson));
+  background-size: 300% 100%;
+  animation: gradientSlide 5s linear infinite;
 }
 
 .stat-metrics-grid {
@@ -500,12 +520,23 @@
 }
 
 .metric-box {
-  background: rgba(10, 13, 20, 0.6);
+  background: rgba(10, 13, 20, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   padding: 1rem;
   display: flex;
   flex-direction: column;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-box:hover {
+  transform: translateY(-4px);
+  border-color: rgba(225, 29, 72, 0.4);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 15px rgba(225, 29, 72, 0.15);
 }
 
 .metric-label {
@@ -520,32 +551,54 @@
   font-size: 1.75rem;
   font-weight: 800;
   color: var(--text-primary);
-  line-height: 1;
+  line-height: 1.1;
+  transition: color 0.3s ease;
 }
 
-.metric-value.safe { color: var(--safe-emerald); }
-.metric-value.warning { color: var(--warning-amber); }
-.metric-value.danger { color: var(--danger-rose); }
+.metric-value.safe {
+  color: var(--safe-emerald);
+  text-shadow: 0 0 16px rgba(16, 185, 129, 0.4);
+}
 
-.attendance-progress-ring-box {
+.metric-value.danger {
+  color: var(--danger-rose);
+  text-shadow: 0 0 16px rgba(244, 63, 94, 0.4);
+}
+
+.bunk-visualizer-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  padding: 1.75rem;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: heroCardEntrance 0.6s 0.1s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.bunk-visualizer-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(245, 158, 11, 0.35);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(245, 158, 11, 0.15);
 }
 
 .progress-circle-wrap {
   position: relative;
-  width: 120px;
-  height: 120px;
+  width: 140px;
+  height: 140px;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 1rem;
 }
 
 .progress-circle-wrap svg {
   transform: rotate(-90deg);
-  width: 120px;
-  height: 120px;
 }
 
 .progress-circle-wrap circle {
@@ -560,7 +613,7 @@
 
 .progress-bar {
   stroke: var(--tiet-crimson);
-  transition: stroke-dashoffset 0.8s ease;
+  transition: stroke-dashoffset 1.2s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.4s ease;
 }
 
 .progress-text {
@@ -594,13 +647,19 @@
   border-radius: var(--radius-lg);
   padding: 1.25rem;
   position: relative;
-  transition: all var(--transition-fast);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: subjectCardFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes subjectCardFadeIn {
+  from { opacity: 0; transform: translateY(18px); filter: blur(4px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
 
 .subject-card:hover {
-  transform: translateY(-2px);
-  border-color: var(--border-medium);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-5px) scale(1.01);
+  border-color: rgba(225, 29, 72, 0.35);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55), 0 0 25px rgba(225, 29, 72, 0.15);
 }
 
 .subject-card.is-danger {

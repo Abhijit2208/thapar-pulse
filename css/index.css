@@ -553,22 +553,23 @@ button, input, select, textarea {
   flex: 1;
 }
 
-/* Tab View Switcher Logic */
+/* Tab View Switcher Logic with Immersive Staggered Entrance */
 .tab-view {
   display: none;
-  animation: fadeIn 0.25s ease-out;
 }
 
 .tab-view.active {
   display: block;
+  animation: tabSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes tabSlideIn {
+  0% { opacity: 0; transform: translateY(20px) scale(0.985); filter: blur(6px); }
+  60% { opacity: 1; filter: blur(0); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 }
 
-/* Card System */
+/* Card System with 3D Elevation and Glass Shimmer */
 .card {
   background: var(--bg-glass-card);
   backdrop-filter: var(--backdrop-blur);
@@ -577,11 +578,15 @@ button, input, select, textarea {
   border-radius: var(--radius-lg);
   padding: 1.5rem;
   box-shadow: var(--shadow-sm);
-  transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
 }
 
 .card:hover {
-  border-color: var(--border-medium);
+  transform: translateY(-4px);
+  border-color: rgba(225, 29, 72, 0.35);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), 0 0 24px rgba(225, 29, 72, 0.15);
 }
 
 .card-header {
