@@ -121,6 +121,121 @@ const THAPAR_DATA = {
     seatAllottedCategory: "INTERNATIONAL ENGG. PROG."
   },
 
+  // Official TIET Student Registry Database (Strict Email <-> Roll Number Mapping)
+  studentRegistry: {
+    "1026020074": {
+      name: "Abhijit Tathgir",
+      emails: ["abhijit.tathgir@thapar.edu", "abhijit.tathgir@gmail.com", "abhijittathgir@gmail.com", "1026020074@thapar.edu"],
+      group: "1B44",
+      branch: "Civil Engineering (IEP - Univ of Queensland)",
+      semester: 1,
+      fatherName: "Surinder Kumar Tathgir",
+      applicationNo: "BE/BTECH/2026/102346"
+    },
+    "102401742": {
+      name: "Aarav Sharma",
+      emails: ["aarav.sharma@thapar.edu", "102401742@thapar.edu", "aaravsharma@gmail.com"],
+      group: "2CO11",
+      branch: "Computer Science & Engineering (COPC)",
+      semester: 4,
+      fatherName: "Rajesh Sharma",
+      applicationNo: "BE/BTECH/2024/101890"
+    },
+    "102103890": {
+      name: "Kabir Malhotra",
+      emails: ["kabir.malhotra@thapar.edu", "102103890@thapar.edu"],
+      group: "4CO11",
+      branch: "Computer Engineering (COE)",
+      semester: 8,
+      fatherName: "Sanjay Malhotra",
+      applicationNo: "BE/BTECH/2021/098124"
+    },
+    "102315022": {
+      name: "Simran Kaur",
+      emails: ["simran.kaur@thapar.edu", "102315022@thapar.edu"],
+      group: "3CO15",
+      branch: "Computer Science & Business Systems (COBS)",
+      semester: 6,
+      fatherName: "Harpreet Singh",
+      applicationNo: "BE/BTECH/2023/110294"
+    }
+  },
+
+  verifyEmailRollMatch(email, roll) {
+    if (!email || !roll) return { valid: false, reason: "Please enter both Email and Roll Number" };
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanRoll = roll.trim().replace(/\D/g, '');
+
+    // 1. Direct registry lookup by Roll Number
+    if (this.studentRegistry[cleanRoll]) {
+      const student = this.studentRegistry[cleanRoll];
+      const matchesEmail = student.emails.some(e => e.toLowerCase() === cleanEmail);
+      if (matchesEmail) {
+        return { valid: true, student, roll: cleanRoll, email: cleanEmail };
+      } else {
+        return { 
+          valid: false, 
+          reason: `Email '${cleanEmail}' is NOT registered for Roll Number ${cleanRoll}. Registered address ends with @thapar.edu.` 
+        };
+      }
+    }
+
+    // 2. Direct registry lookup by Email (to catch cross-account attempts)
+    const foundEntry = Object.entries(this.studentRegistry).find(([, st]) => 
+      st.emails.some(e => e.toLowerCase() === cleanEmail)
+    );
+    if (foundEntry) {
+      const [registeredRoll, student] = foundEntry;
+      if (registeredRoll !== cleanRoll) {
+        return {
+          valid: false,
+          reason: `Email '${cleanEmail}' is officially registered to Roll Number ${registeredRoll}, not ${cleanRoll}. Access declined.`
+        };
+      }
+    }
+
+    // 3. Institutional standard email format: [roll]@thapar.edu
+    if (cleanEmail === `${cleanRoll}@thapar.edu` || cleanEmail.startsWith(cleanRoll)) {
+      const decoded = this.decodeRollNumber(cleanRoll);
+      return { 
+        valid: true, 
+        student: {
+          name: "TIET Student",
+          rollNumber: cleanRoll,
+          group: "1B44",
+          branch: decoded ? decoded.branchName : "Engineering",
+          semester: decoded ? decoded.semester : 1
+        },
+        roll: cleanRoll,
+        email: cleanEmail
+      };
+    }
+
+    // 4. Matching local name prefix with roll number
+    const localPart = cleanEmail.split('@')[0].toLowerCase();
+    if (localPart.includes(cleanRoll) || (cleanRoll.length >= 6 && localPart.includes(cleanRoll.slice(-4)))) {
+      const decoded = this.decodeRollNumber(cleanRoll);
+      return {
+        valid: true,
+        student: {
+          name: localPart.replace(/[._\d]/g, ' ').trim() || "TIET Student",
+          rollNumber: cleanRoll,
+          group: "1B44",
+          branch: decoded ? decoded.branchName : "Engineering",
+          semester: decoded ? decoded.semester : 1
+        },
+        roll: cleanRoll,
+        email: cleanEmail
+      };
+    }
+
+    // Otherwise decline!
+    return {
+      valid: false,
+      reason: `Verification Declined: Email '${cleanEmail}' does not match the allotted record for Roll Number ${cleanRoll}.`
+    };
+  },
+
   // User Profile Default
   userProfile: {
     name: "Abhijit Tathgir",

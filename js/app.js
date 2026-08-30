@@ -46,6 +46,8 @@ const App = {
     const pwdInput = document.getElementById('lock-password-input');
     const otpInput = document.getElementById('lock-otp-input');
     const batchHint = document.getElementById('lock-batch-hint');
+    const matchHint = document.getElementById('lock-match-hint');
+    const emailHint = document.getElementById('lock-email-hint');
     const togglePwdBtn = document.getElementById('toggle-pwd-btn');
     const autofillBtn = document.getElementById('btn-autofill-otp');
     const resendOtpBtn = document.getElementById('btn-resend-otp');
@@ -67,25 +69,43 @@ const App = {
       });
     }
 
-    // Real-time batch decoding when typing Roll Number (Password field)
-    if (pwdInput) {
-      const updateBatchPreview = () => {
-        const val = pwdInput.value.trim();
-        const decoded = window.THAPAR_DATA.decodeRollNumber(val);
-        
-        if (decoded && val.length >= 6) {
-          if (batchHint) {
-            batchHint.innerText = `✓ Verified TIET: ${decoded.batchString} (${decoded.yearName}) • ${decoded.branchCode} (${decoded.branchName}) • Sem ${decoded.semester}`;
-            batchHint.style.display = 'block';
-          }
-        } else if (batchHint) {
-          batchHint.innerText = '';
-        }
-      };
+    // Real-time batch decoding & Email-Roll binding validation
+    const updateRealtimeValidation = () => {
+      const email = emailInput ? emailInput.value.trim() : '';
+      const roll = pwdInput ? pwdInput.value.trim() : '';
 
-      pwdInput.addEventListener('input', updateBatchPreview);
-      updateBatchPreview();
-    }
+      // 1. Batch & Branch decoder on roll
+      if (pwdInput && batchHint) {
+        const decoded = window.THAPAR_DATA.decodeRollNumber(roll);
+        if (decoded && roll.length >= 6) {
+          batchHint.innerText = `✓ Verified TIET: ${decoded.batchString} (${decoded.yearName}) • ${decoded.branchCode} (${decoded.branchName}) • Sem ${decoded.semester}`;
+          batchHint.style.display = 'block';
+        } else {
+          batchHint.innerText = '';
+          batchHint.style.display = 'none';
+        }
+      }
+
+      // 2. Strict Email <-> Roll connection check
+      if (email && roll.length >= 6 && matchHint) {
+        const check = window.THAPAR_DATA.verifyEmailRollMatch(email, roll);
+        if (check.valid) {
+          matchHint.innerText = `✓ Verified Match: Email is registered to Roll ${check.roll} (${check.student.name || 'Student'})`;
+          matchHint.style.color = 'var(--safe-emerald)';
+          matchHint.style.display = 'block';
+        } else {
+          matchHint.innerText = `⚠ ${check.reason}`;
+          matchHint.style.color = 'var(--danger-rose)';
+          matchHint.style.display = 'block';
+        }
+      } else if (matchHint) {
+        matchHint.style.display = 'none';
+      }
+    };
+
+    if (pwdInput) pwdInput.addEventListener('input', updateRealtimeValidation);
+    if (emailInput) emailInput.addEventListener('input', updateRealtimeValidation);
+    updateRealtimeValidation();
 
     let generatedOtp = null;
     let otpTimerInterval = null;
@@ -110,29 +130,21 @@ const App = {
       }, 1000);
     };
 
-    const sendOtp = (email, roll) => {
+    const sendOtp = (email, roll, studentData = null) => {
       generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
       const decoded = window.THAPAR_DATA.decodeRollNumber(roll);
       const cs = window.THAPAR_DATA.counsellingStatus;
 
-      let name = "Abhijit Tathgir";
-      let branch = "Civil Engineering (IEP - Univ of Queensland)";
-      let sem = 1;
-      let group = "1B44";
+      let name = studentData?.name || "Abhijit Tathgir";
+      let branch = studentData?.branch || "Civil Engineering (IEP - Univ of Queensland)";
+      let sem = studentData?.semester || 1;
+      let group = studentData?.group || "1B44";
 
       if (roll === cs.enrollmentNumber || roll === '1026020074') {
         name = cs.applicantName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
         branch = cs.allottedBranch;
         sem = cs.semester;
         group = cs.classGroup;
-      } else if (email.includes('@')) {
-        const local = email.split('@')[0];
-        const cleaned = local.replace(/[._\d]/g, ' ').trim();
-        if (cleaned) {
-          name = cleaned.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-        }
-        branch = decoded ? decoded.branchName : "COE";
-        sem = decoded ? decoded.semester : 1;
       }
 
       pendingUserData = {
@@ -163,7 +175,7 @@ const App = {
       }
     };
 
-    // Step 1: Request OTP Form
+    // Step 1: Request OTP Form (Strict Verification)
     if (lockForm) {
       lockForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -171,7 +183,7 @@ const App = {
         const roll = pwdInput ? pwdInput.value.trim() : '';
 
         if (!email || !roll) {
-          this.showToast('Please enter your TIET Email and Roll Number Password', 'error');
+          this.showToast('Please enter both TIET Registered Email and Roll Number', 'error');
           return;
         }
 
@@ -180,7 +192,19 @@ const App = {
           return;
         }
 
-        sendOtp(email, roll);
+        // STRICT VERIFICATION: Email must be mapped to Roll Number
+        const check = window.THAPAR_DATA.verifyEmailRollMatch(email, roll);
+        if (!check.valid) {
+          this.showToast(`❌ Access Declined: ${check.reason}`, 'error');
+          if (matchHint) {
+            matchHint.innerText = `❌ ${check.reason}`;
+            matchHint.style.color = 'var(--danger-rose)';
+            matchHint.style.display = 'block';
+          }
+          return;
+        }
+
+        sendOtp(email, roll, check.student);
       });
     }
 

@@ -33,7 +33,8 @@
       <form class="lock-form" id="form-lock-login">
         <div class="form-group" style="margin-bottom: 0;">
           <label class="form-label">Username (Registered Email ID)</label>
-          <input type="email" id="lock-email-input" placeholder="e.g. asharma@thapar.edu" required class="form-control" autocomplete="username">
+          <input type="email" id="lock-email-input" placeholder="e.g. abhijit.tathgir@thapar.edu" required class="form-control" autocomplete="username">
+          <p id="lock-email-hint" style="font-size: 0.72rem; color: var(--safe-emerald); margin-top: 0.25rem; font-weight: 600; display: none;"></p>
         </div>
 
         <div class="form-group" style="margin-bottom: 0;">
@@ -41,8 +42,9 @@
             <label class="form-label" style="margin-bottom: 0.25rem;">Password (TIET Roll Number)</label>
             <span id="toggle-pwd-btn" style="font-size: 0.72rem; color: var(--text-muted); cursor: pointer; user-select: none;">👁️ Show</span>
           </div>
-          <input type="password" id="lock-password-input" placeholder="e.g. 102401742" pattern="[0-9]{6,12}" required class="form-control" autocomplete="current-password">
+          <input type="password" id="lock-password-input" placeholder="e.g. 1026020074" pattern="[0-9]{6,12}" required class="form-control" autocomplete="current-password">
           <p id="lock-batch-hint" style="font-size: 0.72rem; color: var(--tiet-gold); margin-top: 0.35rem; font-weight: 600;"></p>
+          <p id="lock-match-hint" style="font-size: 0.75rem; font-weight: 700; margin-top: 0.25rem; display: none;"></p>
         </div>
 
         <button type="submit" class="btn-unlock-portal" id="btn-request-otp">
