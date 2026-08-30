@@ -602,25 +602,33 @@
              ================================================================ -->
         <section class="tab-view" id="tab-timetable">
           <div class="card" style="margin-bottom: 1.5rem;">
-            <div class="card-header" style="border-bottom: 1px solid var(--border-subtle); background: linear-gradient(135deg, rgba(200, 147, 42, 0.1), rgba(17, 23, 38, 0.9));">
+            <div class="card-header" style="border-bottom: 1px solid var(--border-subtle); background: linear-gradient(135deg, rgba(200, 147, 42, 0.12), rgba(17, 23, 38, 0.95)); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
               <div class="card-title-group">
                 <div class="card-icon-badge gold">📅</div>
                 <div>
-                  <h3 class="card-title">Live Section Timetable</h3>
-                  <p class="card-subtitle">Select your group code to instantly view your weekly schedule</p>
+                  <h3 class="card-title" id="tt-allotted-title">Live Schedule — Class Group 1B44</h3>
+                  <p class="card-subtitle" id="tt-allotted-sub">Civil Engineering (IEP) • Semester 1 • 2026-27 Odd Schedule</p>
                 </div>
+              </div>
+
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="header-action-btn" onclick="App.openModal('modal-counselling-status')" style="font-size: 0.78rem; background: rgba(245,158,11,0.15); color: var(--tiet-gold); border-color: rgba(245,158,11,0.35);">
+                  🏛️ Allotment Card
+                </button>
               </div>
             </div>
             
-            <div style="padding: 1.5rem;">
+            <div style="padding: 1.25rem 1.5rem; background: rgba(0,0,0,0.15); border-bottom: 1px solid var(--border-subtle);">
               <form id="timetable-search-form" onsubmit="event.preventDefault();">
-                <label class="form-label">Search Group Code (e.g. 1A11, 2C31)</label>
-                <div style="position: relative; margin-bottom: 0.5rem;">
-                  <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 1rem; color: var(--text-muted);">🔍</span>
-                  <input type="text" id="tt-group-search" placeholder="Type here..." class="form-control" style="padding-left: 2.5rem;" autocomplete="off" spellcheck="false">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                  <label class="form-label" style="margin-bottom: 0; font-size: 0.78rem; color: var(--text-muted);">Switch Class Group (e.g. 1B44, 2CO11, 3CO15)</label>
+                  <div id="tt-selected-display"></div>
+                </div>
+                <div style="position: relative;">
+                  <span style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 0.95rem; color: var(--text-muted);">🔍</span>
+                  <input type="text" id="tt-group-search" placeholder="Type group code to switch..." value="1B44" class="form-control" style="padding-left: 2.5rem;" autocomplete="off" spellcheck="false">
                   <div id="tt-search-results" class="tt-search-dropdown"></div>
                 </div>
-                <div id="tt-selected-display" style="min-height: 28px; margin-bottom: 0.5rem;"></div>
               </form>
             </div>
           </div>

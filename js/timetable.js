@@ -11,8 +11,16 @@ const TimetableModule = {
     try {
       await this.fetchData();
       document.getElementById('tt-loading-state').style.display = 'none';
-      if (this.selectedGroup) {
-        this.renderTable(this.selectedGroup);
+      
+      const p = window.THAPAR_DATA?.userProfile;
+      const cs = window.THAPAR_DATA?.counsellingStatus;
+      const defaultGroup = (p && p.group) || (cs && cs.classGroup) || '1B44';
+
+      if (this.allGroups.includes(defaultGroup)) {
+        this.selectGroup(defaultGroup);
+      } else if (this.allGroups.length > 0) {
+        const found = this.allGroups.find(g => g.toUpperCase() === defaultGroup.toUpperCase()) || this.allGroups[0];
+        this.selectGroup(found);
       }
     } catch (err) {
       console.error(err);
@@ -33,12 +41,14 @@ const TimetableModule = {
     const input = document.getElementById('tt-group-search');
     const resultsBox = document.getElementById('tt-search-results');
     
-    input.addEventListener('input', () => {
-      this.renderResults(input.value);
-    });
+    if (input) {
+      input.addEventListener('input', () => {
+        this.renderResults(input.value);
+      });
+    }
 
     document.addEventListener('click', (e) => {
-      if (!e.target.closest('#timetable-search-form')) {
+      if (!e.target.closest('#timetable-search-form') && resultsBox) {
         resultsBox.style.display = 'none';
       }
     });
@@ -51,6 +61,7 @@ const TimetableModule = {
 
   renderResults(query) {
     const resultsBox = document.getElementById('tt-search-results');
+    if (!resultsBox) return;
     resultsBox.innerHTML = '';
     const q = query.trim().toLowerCase();
     
@@ -85,15 +96,24 @@ const TimetableModule = {
 
   selectGroup(groupName) {
     this.selectedGroup = groupName;
-    document.getElementById('tt-group-search').value = groupName;
-    document.getElementById('tt-search-results').style.display = 'none';
+    const input = document.getElementById('tt-group-search');
+    const resultsBox = document.getElementById('tt-search-results');
+    if (input) input.value = groupName;
+    if (resultsBox) resultsBox.style.display = 'none';
     
     const display = document.getElementById('tt-selected-display');
-    display.innerHTML = `
-      <span class="selected-badge" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; padding: 4px 10px; font-size: 0.78rem; font-weight: 600; color: var(--safe-emerald);">
-        ✓ ${groupName} • ${this.yearLabel(groupName)}
-      </span>
-    `;
+    if (display) {
+      display.innerHTML = `
+        <span class="selected-badge" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; padding: 4px 10px; font-size: 0.78rem; font-weight: 600; color: var(--safe-emerald);">
+          ✓ Allotted Group: ${groupName} • ${this.yearLabel(groupName)} (UG 2026-27 Odd)
+        </span>
+      `;
+    }
+
+    const titleEl = document.getElementById('tt-allotted-title');
+    const subEl = document.getElementById('tt-allotted-sub');
+    if (titleEl) titleEl.innerText = `Live Schedule — Class Group ${groupName}`;
+    if (subEl) subEl.innerText = `Allotted Weekly Schedule (${this.yearLabel(groupName)}) • Session 2026-27 Odd`;
 
     this.renderTable(groupName);
   },
