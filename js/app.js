@@ -415,10 +415,10 @@ const App = {
     const overlay = document.getElementById('countdown-overlay');
 
     if (fillEl) fillEl.style.transform = 'scaleX(0)';
-    if (numberEl) numberEl.textContent = '10';
+    if (numberEl) numberEl.textContent = '1';
 
-    // Cinematic duration ~3.2 seconds
-    const duration = 3200;
+    // Cinematic duration ~2.6 seconds (fluid, responsive, luxury feel)
+    const duration = 2600;
     let startTime = null;
 
     const animate = (timestamp) => {
@@ -431,8 +431,8 @@ const App = {
         ? 2 * progress * progress
         : 1 - Math.pow(-2 * progress + 2, 2) / 2;
 
-      // Count down from 10 -> 0
-      const currentNumber = Math.max(0, Math.round(10 * (1 - progress)));
+      // Count up from 1 -> 100
+      const currentNumber = Math.min(100, Math.max(1, Math.round(1 + 99 * easedProgress)));
 
       if (numberEl) {
         numberEl.textContent = String(currentNumber);
@@ -445,8 +445,8 @@ const App = {
       if (progress < 1) {
         requestAnimationFrame(animate);
       } else {
-        // Animation complete!
-        if (numberEl) numberEl.textContent = '0';
+        // Process complete at 100!
+        if (numberEl) numberEl.textContent = '100';
         if (fillEl) fillEl.style.transform = 'scaleX(1)';
 
         // 1. Text elements translate slightly up & fade out
