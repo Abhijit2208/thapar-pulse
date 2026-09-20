@@ -6,6 +6,11 @@
   <title>ThaparPulse | TIET Patiala Campus Operating System</title>
   <meta name="description" content="All-in-one student life platform for Thapar University (TIET Patiala) - 75% attendance predictor, Rajpura/Chandigarh cab pooling, hostel mess menus, past MST/EST papers, campus marketplace, and society recruitments.">
 
+  <!-- Google Fonts Variable: Roboto Flex & Space Grotesk -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wdth,wght@8..144,25..151,100..1000&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+
   <!-- Stylesheets -->
   <link rel="stylesheet" href="css/index.css">
   <link rel="stylesheet" href="css/components.css">
@@ -238,24 +243,53 @@
       <div class="content-body">
         
         <!-- ================================================================
-             0. HERO WELCOME SHOWCASE (IMMERSIVE VIDEO STYLE)
+             0. HERO WELCOME SHOWCASE (TEXT PRESSURE LOGO REEL ANIMATION)
              ================================================================ -->
-        <div class="portal-hero-showcase">
-          <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem;">
-            <span class="ticker-pill" style="background: linear-gradient(135deg, var(--tiet-crimson), var(--tiet-gold));">⚡ TIET Campus OS</span>
-            <span style="font-size: 0.78rem; color: var(--safe-emerald); font-weight: 700;">● Live Session Active</span>
-            <span style="font-size: 0.75rem; background: rgba(245,158,11,0.18); color: var(--tiet-gold); padding: 0.2rem 0.5rem; border-radius: 4px; border: 1px solid rgba(245,158,11,0.3); font-weight: 700;">Allotted Group: 1B44</span>
+        <div class="hero-showcase-container" id="hero-showcase-container">
+          <!-- Ambient floating dust particles -->
+          <div class="hero-dust-field" id="hero-dust-field"></div>
+
+          <!-- Central glowing radial aura -->
+          <div class="hero-radial-aura"></div>
+
+          <!-- Tagline Pill -->
+          <div class="hero-tag-pill">
+            <span class="hero-tag-dot"></span>
+            <span class="hero-tag-text">TIET Patiala Campus Operating System • 2026</span>
           </div>
 
-          <h1 style="font-size: 2.2rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 0.5rem; background: linear-gradient(135deg, #fff 0%, #fca5a5 40%, #fbbf24 80%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-            Welcome back, <span class="profile-name-val">Abhijit Tathgir</span> 🚀
-          </h1>
+          <!-- Giant Interactive Text Pressure App Logo -->
+          <div class="hero-logo-pressure-wrap" id="hero-logo-pressure">
+            <h1 class="text-pressure-title tp-flex tp-stroke" id="text-pressure-title">
+              <span data-char="T">T</span>
+              <span data-char="H">H</span>
+              <span data-char="A">A</span>
+              <span data-char="P">P</span>
+              <span data-char="A">A</span>
+              <span data-char="R">R</span>
+              <span class="tp-spacer">&nbsp;</span>
+              <span data-char="P">P</span>
+              <span data-char="U">U</span>
+              <span data-char="L">L</span>
+              <span data-char="S">S</span>
+              <span data-char="E">E</span>
+            </h1>
+          </div>
 
-          <p style="font-size: 0.92rem; color: var(--text-secondary); max-width: 780px; margin-bottom: 1.5rem;">
-            TIET Patiala All-in-One Dashboard. Scroll down to automatically explore all live modules — your 75% attendance predictor, allotted class group timetable (1B44), hostel mess menus, cab shares, PYQ vaults, and campus advice.
-          </p>
+          <!-- Hero subline with gold drop shadow -->
+          <div class="hero-subline-wrap">
+            <p class="hero-subline-text">Crafting Seamless Campus Experiences For TIET Patiala</p>
+          </div>
 
-          <div style="display: flex; gap: 0.65rem; flex-wrap: wrap; align-items: center;">
+          <!-- User Summary Pill -->
+          <div class="hero-user-summary">
+            <span>Welcome back, <strong class="profile-name-val user-name-highlight">Abhijit Tathgir</strong> 🚀</span>
+            <span style="font-size: 0.75rem; background: rgba(245,158,11,0.18); color: var(--tiet-gold); padding: 0.25rem 0.6rem; border-radius: 6px; border: 1px solid rgba(245,158,11,0.3); font-weight: 700;">Allotted Group: 1B44</span>
+            <span style="font-size: 0.78rem; color: var(--safe-emerald); font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">● Live Session Active</span>
+          </div>
+
+          <!-- Quick Navigation Actions -->
+          <div class="hero-actions-row">
             <button class="header-action-btn primary" onclick="App.scrollToSection('tab-dashboard')">
               <span>📊</span> Attendance Forecaster
             </button>

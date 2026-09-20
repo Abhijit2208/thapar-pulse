@@ -17,6 +17,9 @@ const App = {
     this.initTicker();
     this.initTheme();
 
+    this.initHeroTextPressure();
+    this.initHeroDust();
+
     // Initialize all sub-modules
     if (window.AttendanceModule) window.AttendanceModule.init();
     if (window.RideshareModule) window.RideshareModule.init();
@@ -30,6 +33,7 @@ const App = {
     if (localStorage.getItem('thapar_is_authenticated') === 'true') {
       setTimeout(() => {
         this.showToast(`Welcome back, ${window.THAPAR_DATA.userProfile.name} ⚡`, 'info');
+        this.triggerLogoEntrance();
       }, 600);
     }
   },
@@ -535,6 +539,111 @@ const App = {
 
     this.showToast(`Welcome, ${name}! ThaparPulse is unlocked for Semester ${semester} ⚡`, 'success');
     this._pendingUnlock = null;
+
+    // Trigger elastic wave entrance across the Text Pressure hero logo
+    setTimeout(() => {
+      this.triggerLogoEntrance();
+    }, 250);
+  },
+
+  initHeroDust() {
+    const field = document.getElementById('hero-dust-field');
+    if (!field || field.children.length > 0) return;
+
+    // Generate floating dust particles inspired by the Instagram reel
+    const DUST_COUNT = 22;
+    for (let i = 0; i < DUST_COUNT; i++) {
+      const p = document.createElement('div');
+      p.className = 'hero-dust';
+      const size = (Math.random() * 2.2 + 1.2).toFixed(1);
+      const isCrimson = Math.random() > 0.45;
+      const top = Math.random() * 90 + 5;
+      const left = Math.random() * 92 + 4;
+      const duration = (Math.random() * 3.5 + 5.5).toFixed(1);
+      const delay = (Math.random() * 4).toFixed(1);
+
+      p.style.width = `${size}px`;
+      p.style.height = `${size}px`;
+      p.style.background = isCrimson ? 'rgba(225, 29, 72, 0.7)' : 'rgba(255, 255, 255, 0.35)';
+      p.style.top = `${top}%`;
+      p.style.left = `${left}%`;
+      p.style.animationDuration = `${duration}s`;
+      p.style.animationDelay = `${delay}s`;
+      field.appendChild(p);
+    }
+  },
+
+  initHeroTextPressure() {
+    const wrap = document.getElementById('hero-logo-pressure');
+    const title = document.getElementById('text-pressure-title');
+    if (!wrap || !title) return;
+
+    const spans = title.querySelectorAll('span[data-char]');
+    if (!spans.length) return;
+
+    let rafId = null;
+
+    wrap.addEventListener('mousemove', (e) => {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        const mouseX = e.clientX;
+        const mouseY = e.clientY;
+
+        spans.forEach(span => {
+          const rect = span.getBoundingClientRect();
+          const centerX = rect.left + rect.width / 2;
+          const centerY = rect.top + rect.height / 2;
+          const dist = Math.hypot(mouseX - centerX, mouseY - centerY);
+          const maxDist = 280;
+          const factor = Math.max(0, 1 - dist / maxDist);
+
+          // Variable font weight: 300 up to 1000
+          const wght = Math.round(300 + factor * 700);
+          // Variable font width: 80 up to 151
+          const wdth = Math.round(80 + factor * 71);
+          // Scale factor
+          const scale = (1 + factor * 0.16).toFixed(3);
+
+          span.style.fontVariationSettings = `'wght' ${wght}, 'wdth' ${wdth}`;
+          span.style.transform = `scale(${scale})`;
+        });
+      });
+    });
+
+    wrap.addEventListener('mouseleave', () => {
+      spans.forEach(span => {
+        span.style.transition = 'transform 0.4s ease-out, font-variation-settings 0.4s ease-out';
+        span.style.fontVariationSettings = "'wght' 800, 'wdth' 115";
+        span.style.transform = 'scale(1)';
+        setTimeout(() => {
+          span.style.transition = '';
+        }, 400);
+      });
+    });
+  },
+
+  triggerLogoEntrance() {
+    const title = document.getElementById('text-pressure-title');
+    if (!title) return;
+    const spans = title.querySelectorAll('span[data-char]');
+    if (!spans.length) return;
+
+    // Sequential ripple wave cascade across characters: T-H-A-P-A-R P-U-L-S-E
+    spans.forEach((span, i) => {
+      setTimeout(() => {
+        span.style.transition = 'transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1), font-variation-settings 0.35s ease';
+        span.style.transform = 'scale(1.28) translateY(-12px)';
+        span.style.fontVariationSettings = "'wght' 1000, 'wdth' 151";
+
+        setTimeout(() => {
+          span.style.transform = 'scale(1) translateY(0)';
+          span.style.fontVariationSettings = "'wght' 800, 'wdth' 115";
+          setTimeout(() => {
+            span.style.transition = '';
+          }, 450);
+        }, 360);
+      }, i * 65);
+    });
   },
 
 
