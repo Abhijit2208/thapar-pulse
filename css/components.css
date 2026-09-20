@@ -17,9 +17,11 @@
   padding: 1.5rem;
   overflow: hidden;
   transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s ease;
+  --parallax-x: 0px;
+  --parallax-y: 0px;
 }
 
-/* Animated floating gradient orbs */
+/* Animated floating gradient orbs — move with parallax CSS vars */
 .lock-screen-wrapper::before,
 .lock-screen-wrapper::after {
   content: '';
@@ -31,6 +33,7 @@
   animation-iteration-count: infinite;
   animation-direction: alternate;
   pointer-events: none;
+  transition: translate 0.08s linear;
 }
 
 .lock-screen-wrapper::before {
@@ -39,6 +42,8 @@
   background: radial-gradient(circle, rgba(225, 29, 72, 0.55), transparent 70%);
   top: -15%;
   left: -10%;
+  /* Parallax shift applied on top of float animation */
+  translate: var(--parallax-x) var(--parallax-y);
   animation: orbFloat1 8s ease-in-out infinite alternate;
 }
 
@@ -48,6 +53,8 @@
   background: radial-gradient(circle, rgba(245, 158, 11, 0.45), transparent 70%);
   bottom: -15%;
   right: -10%;
+  /* Counter shift for depth separation */
+  translate: calc(var(--parallax-x) * -0.7) calc(var(--parallax-y) * -0.7);
   animation: orbFloat2 10s ease-in-out infinite alternate;
 }
 

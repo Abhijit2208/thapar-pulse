@@ -35,6 +35,7 @@ const App = {
       setTimeout(() => {
         this.showToast(`Welcome back, ${window.THAPAR_DATA.userProfile.name} ⚡`, 'info');
         this.triggerLogoEntrance();
+        this._initHeroParallax();
       }, 600);
     }
   },
@@ -107,39 +108,133 @@ const App = {
 
     drawParticles();
 
-    // Mouse-tracking glow + 3D tilt on the lock card
+    // Mouse-tracking glow + 3D tilt on lock card + background parallax
     const lockCard = document.querySelector('.lock-card');
-    if (lockCard) {
-      lockCard.addEventListener('mousemove', (e) => {
+    const lockScreen = document.getElementById('lock-screen');
+    const lockOrb = document.querySelector('.lock-orb-purple');
+    const lockCanvas = document.getElementById('lock-particles-canvas');
+
+    if (lockCard && lockScreen) {
+      let bgRafId = null;
+      let targetBgX = 0, targetBgY = 0;
+      let currentBgX = 0, currentBgY = 0;
+
+      lockScreen.addEventListener('mousemove', (e) => {
+        const W = window.innerWidth;
+        const H = window.innerHeight;
+
+        // Normalized -0.5 to 0.5
+        const nx = (e.clientX / W) - 0.5;
+        const ny = (e.clientY / H) - 0.5;
+
+        // Card tilt (uses card-relative coords)
         const rect = lockCard.getBoundingClientRect();
-        const x = ((e.clientX - rect.left) / rect.width) * 100;
-        const y = ((e.clientY - rect.top) / rect.height) * 100;
-        lockCard.style.setProperty('--mouse-x', x + '%');
-        lockCard.style.setProperty('--mouse-y', y + '%');
-        // 3D tilt: map mouse offset to -10..10 degrees
-        const tiltX = ((e.clientY - rect.top) / rect.height - 0.5) * -14;
-        const tiltY = ((e.clientX - rect.left) / rect.width - 0.5) * 14;
+        const cardNx = (e.clientX - rect.left) / rect.width - 0.5;
+        const cardNy = (e.clientY - rect.top) / rect.height - 0.5;
+        const tiltX = cardNy * -14;
+        const tiltY = cardNx * 14;
         lockCard.style.transform = `perspective(900px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale3d(1.015, 1.015, 1.015)`;
+        lockCard.style.setProperty('--mouse-x', ((cardNx + 0.5) * 100) + '%');
+        lockCard.style.setProperty('--mouse-y', ((cardNy + 0.5) * 100) + '%');
+
+        // Background parallax target (opposite direction, slower)
+        targetBgX = nx * -28;
+        targetBgY = ny * -22;
+
+        // Orb parallax: moves MORE than background for depth layering
+        if (lockOrb) {
+          lockOrb.style.transform = `translate(calc(-50% + ${nx * 55}px), calc(-50% + ${ny * 42}px))`;
+        }
+        if (lockCanvas) {
+          lockCanvas.style.transform = `translate(${nx * 18}px, ${ny * 14}px)`;
+        }
+
+        if (!bgRafId) {
+          const smoothBg = () => {
+            currentBgX += (targetBgX - currentBgX) * 0.08;
+            currentBgY += (targetBgY - currentBgY) * 0.08;
+            lockScreen.style.backgroundPosition = `calc(50% + ${currentBgX}px) calc(50% + ${currentBgY}px)`;
+            // Tilt the entire wrapper pseudo-orbs via a CSS custom property
+            lockScreen.style.setProperty('--parallax-x', currentBgX + 'px');
+            lockScreen.style.setProperty('--parallax-y', currentBgY + 'px');
+            bgRafId = requestAnimationFrame(smoothBg);
+          };
+          bgRafId = requestAnimationFrame(smoothBg);
+        }
       });
-      lockCard.addEventListener('mouseleave', () => {
+
+      lockScreen.addEventListener('mouseleave', () => {
+        if (bgRafId) { cancelAnimationFrame(bgRafId); bgRafId = null; }
+        lockCard.style.transition = 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
         lockCard.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg) scale3d(1,1,1)';
-        lockCard.style.transition = 'transform 0.55s cubic-bezier(0.16, 1, 0.3, 1)';
-        setTimeout(() => { lockCard.style.transition = ''; }, 560);
+        if (lockOrb) lockOrb.style.transition = 'transform 0.7s cubic-bezier(0.16, 1, 0.3, 1)';
+        if (lockOrb) lockOrb.style.transform = 'translate(-50%, -50%)';
+        if (lockCanvas) lockCanvas.style.transition = 'transform 0.7s ease';
+        if (lockCanvas) lockCanvas.style.transform = 'translate(0px, 0px)';
+        lockScreen.style.setProperty('--parallax-x', '0px');
+        lockScreen.style.setProperty('--parallax-y', '0px');
+        setTimeout(() => {
+          lockCard.style.transition = '';
+          if (lockOrb) lockOrb.style.transition = '';
+          if (lockCanvas) lockCanvas.style.transition = '';
+        }, 700);
       });
     }
 
-    // Stop animation when lock screen is hidden
+    // Stop background animation when lock screen is hidden
     const observer = new MutationObserver(() => {
-      const lockScreen = document.getElementById('lock-screen');
-      if (lockScreen && lockScreen.classList.contains('unlocked')) {
+      const ls = document.getElementById('lock-screen');
+      if (ls && ls.classList.contains('unlocked')) {
         if (animId) cancelAnimationFrame(animId);
+        // Also kick off hero home parallax once visible
+        this._initHeroParallax();
       }
     });
-    const lockScreen = document.getElementById('lock-screen');
-    if (lockScreen) {
-      observer.observe(lockScreen, { attributes: true, attributeFilter: ['class'] });
+    const lockScreenEl = document.getElementById('lock-screen');
+    if (lockScreenEl) {
+      observer.observe(lockScreenEl, { attributes: true, attributeFilter: ['class'] });
     }
   },
+
+  // Hero background parallax — aura + dust shift with mouse
+  _initHeroParallax() {
+    const hero = document.getElementById('hero-showcase-container');
+    const aura = hero ? hero.querySelector('.hero-radial-aura') : null;
+    const dust = hero ? hero.querySelector('.hero-dust-field') : null;
+    if (!hero || !aura) return;
+
+    let heroRafId = null;
+    let hTargetX = 0, hTargetY = 0;
+    let hCurrentX = 0, hCurrentY = 0;
+
+    window.addEventListener('mousemove', (e) => {
+      const heroRect = hero.getBoundingClientRect();
+      if (e.clientY < heroRect.top - 100 || e.clientY > heroRect.bottom + 100) return;
+
+      const nx = (e.clientX / window.innerWidth) - 0.5;
+      const ny = (e.clientY / window.innerHeight) - 0.5;
+
+      // Aura shifts 40px max, dust 20px max (opposite for depth)
+      hTargetX = nx * 40;
+      hTargetY = ny * 30;
+
+      if (dust) {
+        dust.style.transform = `translate(${nx * -18}px, ${ny * -14}px)`;
+      }
+
+      if (!heroRafId) {
+        const smoothHero = () => {
+          hCurrentX += (hTargetX - hCurrentX) * 0.06;
+          hCurrentY += (hTargetY - hCurrentY) * 0.06;
+          aura.style.transform = `translate(calc(-50% + ${hCurrentX}px), calc(-50% + ${hCurrentY}px))`;
+          heroRafId = requestAnimationFrame(smoothHero);
+        };
+        heroRafId = requestAnimationFrame(smoothHero);
+      }
+    }, { passive: true });
+  },
+
+
 
   initAuth() {
     const isAuth = localStorage.getItem('thapar_is_authenticated');
