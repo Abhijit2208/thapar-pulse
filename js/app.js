@@ -19,6 +19,7 @@ const App = {
 
     this.initHeroTextPressure();
     this.initHeroDust();
+    this.initGhostCursor();
 
     // Initialize all sub-modules
     if (window.AttendanceModule) window.AttendanceModule.init();
@@ -106,7 +107,7 @@ const App = {
 
     drawParticles();
 
-    // Mouse-tracking glow on the lock card
+    // Mouse-tracking glow + 3D tilt on the lock card
     const lockCard = document.querySelector('.lock-card');
     if (lockCard) {
       lockCard.addEventListener('mousemove', (e) => {
@@ -115,6 +116,15 @@ const App = {
         const y = ((e.clientY - rect.top) / rect.height) * 100;
         lockCard.style.setProperty('--mouse-x', x + '%');
         lockCard.style.setProperty('--mouse-y', y + '%');
+        // 3D tilt: map mouse offset to -10..10 degrees
+        const tiltX = ((e.clientY - rect.top) / rect.height - 0.5) * -14;
+        const tiltY = ((e.clientX - rect.left) / rect.width - 0.5) * 14;
+        lockCard.style.transform = `perspective(900px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale3d(1.015, 1.015, 1.015)`;
+      });
+      lockCard.addEventListener('mouseleave', () => {
+        lockCard.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg) scale3d(1,1,1)';
+        lockCard.style.transition = 'transform 0.55s cubic-bezier(0.16, 1, 0.3, 1)';
+        setTimeout(() => { lockCard.style.transition = ''; }, 560);
       });
     }
 
@@ -571,6 +581,160 @@ const App = {
       p.style.animationDelay = `${delay}s`;
       field.appendChild(p);
     }
+  },
+
+  // ============================================================
+  // GHOST CURSOR SYSTEM — glowing dot + lagging ring + canvas trail
+  // Active on BOTH lock screen and home page
+  // ============================================================
+  initGhostCursor() {
+    // Only on non-touch devices
+    if (window.matchMedia('(hover: none)').matches) return;
+
+    const container = document.getElementById('custom-cursor-container');
+    const canvas = document.getElementById('cursor-ghost-canvas');
+    const ring = document.getElementById('custom-cursor-ring');
+    const dot = document.getElementById('custom-cursor-dot');
+    if (!container || !canvas || !ring || !dot) return;
+
+    document.body.classList.add('custom-cursor-enabled');
+
+    const ctx = canvas.getContext('2d');
+    let W = window.innerWidth, H = window.innerHeight;
+
+    const resize = () => {
+      W = window.innerWidth;
+      H = window.innerHeight;
+      canvas.width = W;
+      canvas.height = H;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    // ---- Trail particles ----
+    const MAX_TRAIL = 30;
+    const trail = [];
+
+    // ---- Cursor state ----
+    let mouseX = W / 2, mouseY = H / 2;
+    let ringX = mouseX, ringY = mouseY;
+    let isHovering = false;
+    let isTextHovering = false;
+    let isClicking = false;
+    let cursorVisible = false;
+
+    // Show cursor once mouse moves
+    window.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+
+      if (!cursorVisible) {
+        cursorVisible = true;
+        container.classList.add('cursor-active');
+      }
+
+      // Spawn trail particle
+      trail.push({
+        x: mouseX,
+        y: mouseY,
+        alpha: 0.75,
+        radius: Math.random() * 2.8 + 1.2,
+        color: Math.random() > 0.55 ? '225,29,72' : '245,158,11'
+      });
+      if (trail.length > MAX_TRAIL) trail.shift();
+
+      // Position dot instantly
+      dot.style.left = mouseX + 'px';
+      dot.style.top = mouseY + 'px';
+    }, { passive: true });
+
+    // Hover detection
+    const HOVER_SELECTORS = 'a, button, [role="button"], .nav-item, .header-action-btn, .bar-icon-btn, .hero-scroll-indicator, .hero-actions-row button, .lock-card .btn-unlock-portal, .lock-card .btn-quick-demo, .tab-view, .mobile-nav-btn, label[for]';
+    const TEXT_SELECTORS = 'input, textarea, [contenteditable]';
+
+    document.addEventListener('mouseover', (e) => {
+      const target = e.target.closest(HOVER_SELECTORS);
+      const textTarget = e.target.closest(TEXT_SELECTORS);
+      if (textTarget) {
+        isTextHovering = true;
+        isHovering = false;
+        ring.classList.add('cursor-text-hover');
+        ring.classList.remove('cursor-hover');
+        dot.classList.remove('cursor-hover');
+      } else if (target) {
+        isHovering = true;
+        isTextHovering = false;
+        ring.classList.add('cursor-hover');
+        ring.classList.remove('cursor-text-hover');
+        dot.classList.add('cursor-hover');
+      }
+    });
+
+    document.addEventListener('mouseout', (e) => {
+      const target = e.target.closest(HOVER_SELECTORS + ', ' + TEXT_SELECTORS);
+      if (!e.relatedTarget || !e.relatedTarget.closest(HOVER_SELECTORS + ', ' + TEXT_SELECTORS)) {
+        isHovering = false;
+        isTextHovering = false;
+        ring.classList.remove('cursor-hover', 'cursor-text-hover');
+        dot.classList.remove('cursor-hover');
+      }
+    });
+
+    // Click pulse
+    document.addEventListener('mousedown', () => {
+      isClicking = true;
+      ring.classList.add('cursor-click');
+    });
+    document.addEventListener('mouseup', () => {
+      isClicking = false;
+      ring.classList.remove('cursor-click');
+    });
+
+    // Hide cursor when leaving window
+    document.addEventListener('mouseleave', () => {
+      container.classList.remove('cursor-active');
+      cursorVisible = false;
+    });
+    document.addEventListener('mouseenter', () => {
+      if (mouseX !== W / 2 || mouseY !== H / 2) {
+        container.classList.add('cursor-active');
+        cursorVisible = true;
+      }
+    });
+
+    // ---- RAF loop: ring lerp + canvas trail ----
+    const LERP = 0.115;
+    const animate = () => {
+      // Lerp ring position (magnetic lag)
+      ringX += (mouseX - ringX) * LERP;
+      ringY += (mouseY - ringY) * LERP;
+      ring.style.left = ringX + 'px';
+      ring.style.top = ringY + 'px';
+
+      // Draw trail on canvas
+      ctx.clearRect(0, 0, W, H);
+      for (let i = 0; i < trail.length; i++) {
+        const p = trail[i];
+        p.alpha -= 0.03;
+        p.radius *= 0.96;
+        if (p.alpha <= 0) continue;
+
+        ctx.beginPath();
+        const grd = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius * 3);
+        grd.addColorStop(0, `rgba(${p.color}, ${p.alpha})`);
+        grd.addColorStop(1, `rgba(${p.color}, 0)`);
+        ctx.arc(p.x, p.y, p.radius * 3, 0, Math.PI * 2);
+        ctx.fillStyle = grd;
+        ctx.fill();
+      }
+      // Remove fully faded particles
+      for (let i = trail.length - 1; i >= 0; i--) {
+        if (trail[i].alpha <= 0) trail.splice(i, 1);
+      }
+
+      requestAnimationFrame(animate);
+    };
+    animate();
   },
 
   initHeroTextPressure() {
