@@ -95,6 +95,33 @@
     </div>
   </div>
 
+  <!-- ======================================================================
+       0.5 COUNTDOWN LAUNCH SEQUENCE OVERLAY
+       ====================================================================== -->
+  <div class="countdown-overlay" id="countdown-overlay">
+    <canvas id="countdown-particles-canvas"></canvas>
+    <div class="countdown-orb countdown-orb-1"></div>
+    <div class="countdown-orb countdown-orb-2"></div>
+    <div class="countdown-content">
+      <div class="countdown-ring-wrap">
+        <svg class="countdown-ring-svg" viewBox="0 0 200 200">
+          <circle class="countdown-ring-bg" cx="100" cy="100" r="88"></circle>
+          <circle class="countdown-ring-progress" id="countdown-ring" cx="100" cy="100" r="88"></circle>
+        </svg>
+        <div class="countdown-number" id="countdown-number">10</div>
+      </div>
+      <h2 class="countdown-title" id="countdown-title">Initializing ThaparPulse...</h2>
+      <p class="countdown-subtitle" id="countdown-subtitle">Preparing your campus dashboard</p>
+      <div class="countdown-steps" id="countdown-steps">
+        <div class="countdown-step active" id="cs-auth">🔐 Authentication verified</div>
+        <div class="countdown-step" id="cs-profile">👤 Loading profile data</div>
+        <div class="countdown-step" id="cs-attendance">📊 Syncing attendance records</div>
+        <div class="countdown-step" id="cs-timetable">📅 Fetching timetable schedule</div>
+        <div class="countdown-step" id="cs-modules">⚡ Activating all modules</div>
+      </div>
+    </div>
+  </div>
+
   <div class="app-container">
     
     <!-- ====================================================================
@@ -217,6 +244,49 @@
         </div>
       </div>
 
+      <!-- Floating Side Topic Rail (Sticky Quick Index) -->
+      <nav class="floating-side-rail" id="floating-side-rail" aria-label="Quick Module Index">
+        <div class="rail-header-label">TOPICS</div>
+        <div class="rail-items-list">
+          <div class="rail-item active" data-rail-target="tab-dashboard" onclick="App.scrollToSection('tab-dashboard')">
+            <span class="rail-num">01</span>
+            <span class="rail-name">Attendance</span>
+          </div>
+          <div class="rail-item" data-rail-target="tab-timetable" onclick="App.scrollToSection('tab-timetable')">
+            <span class="rail-num">02</span>
+            <span class="rail-name">Timetable (1B44)</span>
+          </div>
+          <div class="rail-item" data-rail-target="tab-mess" onclick="App.scrollToSection('tab-mess')">
+            <span class="rail-num">03</span>
+            <span class="rail-name">Mess Menu</span>
+          </div>
+          <div class="rail-item" data-rail-target="tab-rideshare" onclick="App.scrollToSection('tab-rideshare')">
+            <span class="rail-num">04</span>
+            <span class="rail-name">Cab Pool</span>
+          </div>
+          <div class="rail-item" data-rail-target="tab-vault" onclick="App.scrollToSection('tab-vault')">
+            <span class="rail-num">05</span>
+            <span class="rail-name">PYQs Vault</span>
+          </div>
+          <div class="rail-item" data-rail-target="tab-cgpa" onclick="App.scrollToSection('tab-cgpa')">
+            <span class="rail-num">06</span>
+            <span class="rail-name">CGPA Calc</span>
+          </div>
+          <div class="rail-item" data-rail-target="tab-bazaar" onclick="App.scrollToSection('tab-bazaar')">
+            <span class="rail-num">07</span>
+            <span class="rail-name">Bazaar & LF</span>
+          </div>
+          <div class="rail-item" data-rail-target="tab-societies" onclick="App.scrollToSection('tab-societies')">
+            <span class="rail-num">08</span>
+            <span class="rail-name">Societies</span>
+          </div>
+          <div class="rail-item" data-rail-target="tab-feed" onclick="App.scrollToSection('tab-feed')">
+            <span class="rail-num">09</span>
+            <span class="rail-name">Advice Feed</span>
+          </div>
+        </div>
+      </nav>
+
       <!-- Main Content Container (Scroll-Driven Interactive Portal) -->
       <div class="content-body">
         
@@ -268,6 +338,14 @@
              ================================================================ -->
         <section class="tab-view active" id="tab-dashboard">
           
+          <div class="section-topic-header">
+            <span class="topic-num-badge">01</span>
+            <div>
+              <h2 class="topic-title">Attendance & 75% Safe Bunk Forecaster 📊</h2>
+              <p class="topic-subtitle">Webkiosk attendance tracking with automated safety margin calculator</p>
+            </div>
+          </div>
+
           <!-- Hero Overview -->
           <div class="dashboard-hero">
             <!-- Left Stat Card -->

@@ -385,7 +385,218 @@ const App = {
 
   unlockPortal(name, roll, branch, hostel, semester = 1, group = '1B44') {
     const lockScreen = document.getElementById('lock-screen');
-    
+    const countdownOverlay = document.getElementById('countdown-overlay');
+
+    // Store pending data for after countdown
+    this._pendingUnlock = { name, roll, branch, hostel, semester, group };
+
+    // Hide lock screen first
+    if (lockScreen) {
+      lockScreen.classList.add('unlocked');
+    }
+
+    // Show countdown overlay
+    if (countdownOverlay) {
+      countdownOverlay.classList.add('active');
+      this._startCountdown();
+    } else {
+      // Fallback: no overlay, just unlock directly
+      this._finalizeUnlock();
+    }
+  },
+
+  _startCountdown() {
+    const numberEl = document.getElementById('countdown-number');
+    const ringEl = document.getElementById('countdown-ring');
+    const titleEl = document.getElementById('countdown-title');
+    const subtitleEl = document.getElementById('countdown-subtitle');
+    const overlay = document.getElementById('countdown-overlay');
+
+    const circumference = 2 * Math.PI * 88; // r=88
+    let current = 10;
+
+    // Step indicators and when they activate
+    const stepMap = {
+      8: 'cs-profile',
+      6: 'cs-attendance',
+      4: 'cs-timetable',
+      2: 'cs-modules'
+    };
+
+    const titleMap = {
+      10: 'Initializing ThaparPulse...',
+      8: 'Loading your profile...',
+      6: 'Syncing attendance records...',
+      4: 'Fetching timetable schedule...',
+      2: 'Activating all modules...',
+      0: '🚀 Launching!'
+    };
+
+    const subtitleMap = {
+      10: 'Preparing your campus dashboard',
+      8: 'Personalizing your experience',
+      6: 'Connecting to Webkiosk data',
+      4: 'Preparing group 1B44 schedule',
+      2: 'Almost ready...',
+      0: 'Welcome to ThaparPulse'
+    };
+
+    // Init ring
+    if (ringEl) {
+      ringEl.style.strokeDasharray = circumference;
+      ringEl.style.strokeDashoffset = '0';
+    }
+
+    // Init particles for countdown overlay
+    this._initCountdownParticles();
+
+    const tickDown = () => {
+      if (current < 0) return;
+
+      // Update number with tick animation
+      if (numberEl) {
+        numberEl.classList.remove('tick', 'final-zero');
+        void numberEl.offsetWidth; // force reflow
+        numberEl.innerText = current;
+
+        if (current === 0) {
+          numberEl.classList.add('final-zero');
+        } else {
+          numberEl.classList.add('tick');
+        }
+      }
+
+      // Update ring progress (drain from full to empty)
+      if (ringEl) {
+        const offset = circumference * (1 - current / 10);
+        ringEl.style.strokeDashoffset = offset;
+      }
+
+      // Update title/subtitle
+      if (titleMap[current] && titleEl) titleEl.innerText = titleMap[current];
+      if (subtitleMap[current] && subtitleEl) subtitleEl.innerText = subtitleMap[current];
+
+      // Activate step indicators
+      if (stepMap[current]) {
+        // Mark previous steps as done
+        document.querySelectorAll('.countdown-step.active').forEach(s => {
+          s.classList.remove('active');
+          s.classList.add('done');
+        });
+        const stepEl = document.getElementById(stepMap[current]);
+        if (stepEl) stepEl.classList.add('active');
+      }
+
+      // Update ring color gradient as it drains
+      if (ringEl) {
+        const ratio = current / 10;
+        if (ratio > 0.6) {
+          ringEl.style.stroke = '#e11d48'; // crimson
+        } else if (ratio > 0.3) {
+          ringEl.style.stroke = '#f59e0b'; // gold
+        } else {
+          ringEl.style.stroke = '#10b981'; // emerald
+        }
+      }
+
+      if (current === 0) {
+        // Countdown complete — burst flash and finalize
+        setTimeout(() => {
+          // Create burst flash
+          const burst = document.createElement('div');
+          burst.className = 'countdown-burst';
+          document.body.appendChild(burst);
+          setTimeout(() => burst.remove(), 600);
+
+          // Dismiss overlay
+          if (overlay) {
+            overlay.classList.add('dismiss');
+            overlay.classList.remove('active');
+          }
+
+          // Finalize the unlock
+          setTimeout(() => {
+            this._finalizeUnlock();
+            // Clean up overlay for future use
+            setTimeout(() => {
+              if (overlay) {
+                overlay.classList.remove('dismiss');
+                // Reset steps
+                document.querySelectorAll('.countdown-step').forEach(s => {
+                  s.classList.remove('active', 'done');
+                });
+                document.getElementById('cs-auth')?.classList.add('active');
+              }
+            }, 1000);
+          }, 400);
+        }, 600);
+        return;
+      }
+
+      current--;
+      setTimeout(tickDown, 1000);
+    };
+
+    // Start the countdown after a brief delay
+    setTimeout(tickDown, 400);
+  },
+
+  _initCountdownParticles() {
+    const canvas = document.getElementById('countdown-particles-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let animId = null;
+    let particles = [];
+    const PARTICLE_COUNT = 40;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 1.5 + 0.5,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.25,
+        alpha: Math.random() * 0.4 + 0.1,
+        color: Math.random() > 0.5 ? '225,29,72' : '139,92,246'
+      });
+    }
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${p.color},${p.alpha})`;
+        ctx.fill();
+      });
+
+      // Stop animating if overlay is being dismissed
+      const overlay = document.getElementById('countdown-overlay');
+      if (overlay && (overlay.classList.contains('dismiss') || !overlay.classList.contains('active'))) {
+        cancelAnimationFrame(animId);
+        return;
+      }
+      animId = requestAnimationFrame(draw);
+    };
+
+    draw();
+  },
+
+  _finalizeUnlock() {
+    const data = this._pendingUnlock;
+    if (!data) return;
+
+    const { name, roll, branch, hostel, semester, group } = data;
+
     // Create and attach dynamic shockwave ripple for cinematic unlock
     const shockwave = document.createElement('div');
     shockwave.className = 'unlock-shockwave';
@@ -417,10 +628,6 @@ const App = {
 
     localStorage.setItem('thapar_is_authenticated', 'true');
 
-    if (lockScreen) {
-      lockScreen.classList.add('unlocked');
-    }
-
     // Trigger dashboard cascade entrance animations
     const dashboard = document.getElementById('tab-dashboard');
     if (dashboard) {
@@ -433,7 +640,9 @@ const App = {
     this.animateNumberCounter('metric-overall-pct', 0, 82.4, '%', 1200);
 
     this.showToast(`Welcome, ${name}! ThaparPulse is unlocked for Semester ${semester} ⚡`, 'success');
+    this._pendingUnlock = null;
   },
+
 
   animateNumberCounter(elementId, startVal, endVal, suffix = '', duration = 1000) {
     const el = document.getElementById(elementId);
