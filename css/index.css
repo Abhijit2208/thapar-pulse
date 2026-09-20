@@ -467,8 +467,6 @@ button, input, select, textarea {
   display: flex;
   flex-direction: column;
 }
-  box-shadow: 0 0 0 3px var(--tiet-crimson-glow);
-}
 
 .search-input-wrapper input {
   background: transparent;
