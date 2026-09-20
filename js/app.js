@@ -395,9 +395,12 @@ const App = {
       lockScreen.classList.add('unlocked');
     }
 
-    // Show countdown overlay
+    // Show luxury minimalist countdown overlay
     if (countdownOverlay) {
+      countdownOverlay.classList.remove('curtain-exit');
       countdownOverlay.classList.add('active');
+      const centerContent = document.getElementById('loading-center-content');
+      if (centerContent) centerContent.classList.remove('fade-out');
       this._startCountdown();
     } else {
       // Fallback: no overlay, just unlock directly
@@ -407,188 +410,79 @@ const App = {
 
   _startCountdown() {
     const numberEl = document.getElementById('countdown-number');
-    const ringEl = document.getElementById('countdown-ring');
-    const titleEl = document.getElementById('countdown-title');
-    const subtitleEl = document.getElementById('countdown-subtitle');
+    const fillEl = document.getElementById('countdown-bar-fill');
+    const centerContent = document.getElementById('loading-center-content');
     const overlay = document.getElementById('countdown-overlay');
 
-    const circumference = 2 * Math.PI * 88; // r=88
-    let current = 10;
+    if (fillEl) fillEl.style.transform = 'scaleX(0)';
+    if (numberEl) numberEl.textContent = '10';
 
-    // Step indicators and when they activate
-    const stepMap = {
-      8: 'cs-profile',
-      6: 'cs-attendance',
-      4: 'cs-timetable',
-      2: 'cs-modules'
-    };
+    // Cinematic duration ~3.2 seconds
+    const duration = 3200;
+    let startTime = null;
 
-    const titleMap = {
-      10: 'Initializing ThaparPulse...',
-      8: 'Loading your profile...',
-      6: 'Syncing attendance records...',
-      4: 'Fetching timetable schedule...',
-      2: 'Activating all modules...',
-      0: '🚀 Launching!'
-    };
+    const animate = (timestamp) => {
+      if (!startTime) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(1, elapsed / duration);
 
-    const subtitleMap = {
-      10: 'Preparing your campus dashboard',
-      8: 'Personalizing your experience',
-      6: 'Connecting to Webkiosk data',
-      4: 'Preparing group 1B44 schedule',
-      2: 'Almost ready...',
-      0: 'Welcome to ThaparPulse'
-    };
+      // Smooth cubic easing (power2.inOut)
+      const easedProgress = progress < 0.5
+        ? 2 * progress * progress
+        : 1 - Math.pow(-2 * progress + 2, 2) / 2;
 
-    // Init ring
-    if (ringEl) {
-      ringEl.style.strokeDasharray = circumference;
-      ringEl.style.strokeDashoffset = '0';
-    }
+      // Count down from 10 -> 0
+      const currentNumber = Math.max(0, Math.round(10 * (1 - progress)));
 
-    // Init particles for countdown overlay
-    this._initCountdownParticles();
-
-    const tickDown = () => {
-      if (current < 0) return;
-
-      // Update number with tick animation
       if (numberEl) {
-        numberEl.classList.remove('tick', 'final-zero');
-        void numberEl.offsetWidth; // force reflow
-        numberEl.innerText = current;
-
-        if (current === 0) {
-          numberEl.classList.add('final-zero');
-        } else {
-          numberEl.classList.add('tick');
-        }
+        numberEl.textContent = String(currentNumber);
       }
 
-      // Update ring progress (drain from full to empty)
-      if (ringEl) {
-        const offset = circumference * (1 - current / 10);
-        ringEl.style.strokeDashoffset = offset;
+      if (fillEl) {
+        fillEl.style.transform = `scaleX(${easedProgress})`;
       }
 
-      // Update title/subtitle
-      if (titleMap[current] && titleEl) titleEl.innerText = titleMap[current];
-      if (subtitleMap[current] && subtitleEl) subtitleEl.innerText = subtitleMap[current];
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        // Animation complete!
+        if (numberEl) numberEl.textContent = '0';
+        if (fillEl) fillEl.style.transform = 'scaleX(1)';
 
-      // Activate step indicators
-      if (stepMap[current]) {
-        // Mark previous steps as done
-        document.querySelectorAll('.countdown-step.active').forEach(s => {
-          s.classList.remove('active');
-          s.classList.add('done');
-        });
-        const stepEl = document.getElementById(stepMap[current]);
-        if (stepEl) stepEl.classList.add('active');
-      }
-
-      // Update ring color gradient as it drains
-      if (ringEl) {
-        const ratio = current / 10;
-        if (ratio > 0.6) {
-          ringEl.style.stroke = '#e11d48'; // crimson
-        } else if (ratio > 0.3) {
-          ringEl.style.stroke = '#f59e0b'; // gold
-        } else {
-          ringEl.style.stroke = '#10b981'; // emerald
-        }
-      }
-
-      if (current === 0) {
-        // Countdown complete — burst flash and finalize
+        // 1. Text elements translate slightly up & fade out
         setTimeout(() => {
-          // Create burst flash
-          const burst = document.createElement('div');
-          burst.className = 'countdown-burst';
-          document.body.appendChild(burst);
-          setTimeout(() => burst.remove(), 600);
+          if (centerContent) centerContent.classList.add('fade-out');
 
-          // Dismiss overlay
-          if (overlay) {
-            overlay.classList.add('dismiss');
-            overlay.classList.remove('active');
-          }
-
-          // Finalize the unlock
+          // 2. Stage curtain wipe lifts upward
           setTimeout(() => {
-            this._finalizeUnlock();
-            // Clean up overlay for future use
+            if (overlay) {
+              overlay.classList.add('curtain-exit');
+            }
+
+            // 3. Finalize unlock underneath the lifting curtain
             setTimeout(() => {
-              if (overlay) {
-                overlay.classList.remove('dismiss');
-                // Reset steps
-                document.querySelectorAll('.countdown-step').forEach(s => {
-                  s.classList.remove('active', 'done');
-                });
-                document.getElementById('cs-auth')?.classList.add('active');
-              }
-            }, 1000);
-          }, 400);
-        }, 600);
-        return;
-      }
+              this._finalizeUnlock();
 
-      current--;
-      setTimeout(tickDown, 1000);
+              // Reset overlay after curtain exit transition finishes
+              setTimeout(() => {
+                if (overlay) {
+                  overlay.classList.remove('active', 'curtain-exit');
+                }
+                if (centerContent) {
+                  centerContent.classList.remove('fade-out');
+                }
+                if (fillEl) {
+                  fillEl.style.transform = 'scaleX(0)';
+                }
+              }, 1200);
+            }, 300);
+          }, 300);
+        }, 200);
+      }
     };
 
-    // Start the countdown after a brief delay
-    setTimeout(tickDown, 400);
-  },
-
-  _initCountdownParticles() {
-    const canvas = document.getElementById('countdown-particles-canvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    let animId = null;
-    let particles = [];
-    const PARTICLE_COUNT = 40;
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        radius: Math.random() * 1.5 + 0.5,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.25,
-        alpha: Math.random() * 0.4 + 0.1,
-        color: Math.random() > 0.5 ? '225,29,72' : '139,92,246'
-      });
-    }
-
-    const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach(p => {
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.x < 0) p.x = canvas.width;
-        if (p.x > canvas.width) p.x = 0;
-        if (p.y < 0) p.y = canvas.height;
-        if (p.y > canvas.height) p.y = 0;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${p.color},${p.alpha})`;
-        ctx.fill();
-      });
-
-      // Stop animating if overlay is being dismissed
-      const overlay = document.getElementById('countdown-overlay');
-      if (overlay && (overlay.classList.contains('dismiss') || !overlay.classList.contains('active'))) {
-        cancelAnimationFrame(animId);
-        return;
-      }
-      animId = requestAnimationFrame(draw);
-    };
-
-    draw();
+    // Begin countdown
+    requestAnimationFrame(animate);
   },
 
   _finalizeUnlock() {

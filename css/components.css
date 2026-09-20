@@ -130,220 +130,116 @@
 }
 
 /* --------------------------------------------------------------------------
-   0.5 COUNTDOWN LAUNCH SEQUENCE OVERLAY
+   0.5 LUXURY EDITORIAL MINIMALIST LOADER / COUNTDOWN (REEL STYLE)
    -------------------------------------------------------------------------- */
-.countdown-overlay {
+.loading-screen {
   position: fixed;
   inset: 0;
-  z-index: 999;
-  background: #050810;
+  z-index: 10000;
+  background: #08080a;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
+  align-items: center;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.5s ease, visibility 0.5s ease;
   overflow: hidden;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+  transform: translateY(0%);
 }
 
-.countdown-overlay.active {
+.loading-screen.active {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
 }
 
-.countdown-overlay.dismiss {
-  opacity: 0;
-  transform: scale(1.15);
-  filter: blur(12px);
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
-              filter 0.8s ease,
-              visibility 0.8s ease;
-  visibility: hidden;
+/* Stage curtain lift wipe upwards */
+.loading-screen.curtain-exit {
+  transform: translateY(-100%);
+  transition: transform 1.1s cubic-bezier(0.85, 0, 0.15, 1);
   pointer-events: none;
 }
 
-/* Countdown particles canvas */
-#countdown-particles-canvas {
+/* Subtle atmospheric backdrop glow & grain */
+.loading-grain-overlay {
   position: absolute;
   inset: 0;
-  z-index: 0;
   pointer-events: none;
+  background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(225, 29, 72, 0.1) 0%, rgba(10, 10, 15, 0.95) 75%);
+  opacity: 0.85;
 }
 
-/* Floating orbs */
-.countdown-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(90px);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.countdown-orb-1 {
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(225, 29, 72, 0.5), transparent 70%);
-  top: -10%;
-  right: -5%;
-  animation: orbFloat1 8s ease-in-out infinite alternate;
-}
-
-.countdown-orb-2 {
-  width: 450px;
-  height: 450px;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.45), transparent 70%);
-  bottom: -10%;
-  left: -5%;
-  animation: orbFloat2 10s ease-in-out infinite alternate;
-}
-
-/* Countdown content */
-.countdown-content {
+.loading-center-content {
   position: relative;
   z-index: 2;
-  text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
+  justify-content: center;
+  gap: 18px;
+  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Circular progress ring */
-.countdown-ring-wrap {
-  position: relative;
-  width: 220px;
-  height: 220px;
-  animation: countdownPulseGlow 1.5s ease-in-out infinite alternate;
+.loading-center-content.fade-out {
+  opacity: 0;
+  transform: translateY(-28px);
 }
 
-@keyframes countdownPulseGlow {
-  0% { filter: drop-shadow(0 0 20px rgba(225, 29, 72, 0.3)); }
-  100% { filter: drop-shadow(0 0 40px rgba(245, 158, 11, 0.5)); }
-}
-
-.countdown-ring-svg {
-  width: 100%;
-  height: 100%;
-  transform: rotate(-90deg);
-}
-
-.countdown-ring-bg {
-  fill: none;
-  stroke: rgba(255, 255, 255, 0.06);
-  stroke-width: 6;
-}
-
-.countdown-ring-progress {
-  fill: none;
-  stroke: url(#countdown-gradient);
-  stroke: var(--tiet-crimson, #e11d48);
-  stroke-width: 6;
-  stroke-linecap: round;
-  stroke-dasharray: 553;
-  stroke-dashoffset: 0;
-  transition: stroke-dashoffset 0.85s cubic-bezier(0.4, 0, 0.2, 1);
-  filter: drop-shadow(0 0 8px rgba(225, 29, 72, 0.6));
-}
-
-/* The big countdown number */
-.countdown-number {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-family: var(--font-heading, 'Inter', sans-serif);
-  font-size: 5rem;
-  font-weight: 900;
-  letter-spacing: -0.04em;
-  background: linear-gradient(135deg, #fff 0%, #fca5a5 40%, #fbbf24 80%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-shadow: none;
-  line-height: 1;
-}
-
-.countdown-number.tick {
-  animation: countdownTick 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-
-@keyframes countdownTick {
-  0% { transform: translate(-50%, -50%) scale(1.8); opacity: 0.3; }
-  50% { transform: translate(-50%, -50%) scale(0.85); opacity: 1; }
-  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-}
-
-/* Final zero explosion */
-.countdown-number.final-zero {
-  animation: countdownFinalZero 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes countdownFinalZero {
-  0% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
-  40% { transform: translate(-50%, -50%) scale(0.9); opacity: 1; }
-  70% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
-  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-}
-
-/* Title & subtitle */
-.countdown-title {
-  font-size: 1.4rem;
+/* Giant typographic counter */
+.loading-counter {
+  font-family: var(--font-display, var(--font-heading, 'Inter', -apple-system, sans-serif));
+  color: #ffffff;
+  letter-spacing: -0.05em;
+  font-size: clamp(68px, 12vw, 136px);
   font-weight: 800;
-  letter-spacing: -0.02em;
-  color: #fff;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 40px rgba(255, 255, 255, 0.15);
+  user-select: none;
   margin: 0;
-  opacity: 0.9;
+  transition: transform 0.12s ease-out;
 }
 
-.countdown-subtitle {
-  font-size: 0.88rem;
-  color: rgba(255, 255, 255, 0.5);
-  margin: 0;
-  margin-top: -0.75rem;
-}
-
-/* Step indicators */
-.countdown-steps {
+/* Brand label with wide tracking */
+.loading-brand-wrap {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
+  align-items: center;
+  gap: 8px;
 }
 
-.countdown-step {
-  font-size: 0.8rem;
+.loading-brand-text {
+  font-family: var(--font-display, 'Space Grotesk', var(--font-heading, 'Inter', sans-serif));
+  font-size: clamp(11px, 1.4vw, 14px);
+  color: rgba(255, 255, 255, 0.65);
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.2);
-  transition: color 0.4s ease, transform 0.4s ease;
-  transform: translateX(-8px);
+  user-select: none;
 }
 
-.countdown-step.active {
-  color: rgba(16, 185, 129, 0.9);
-  transform: translateX(0);
+/* Razor-thin 2px progress bar track */
+.loading-bar-track {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 2px;
+  width: min(320px, 70vw);
+  height: 2px;
+  overflow: hidden;
+  position: relative;
+  margin-top: 4px;
 }
 
-.countdown-step.done {
-  color: rgba(16, 185, 129, 0.5);
-  transform: translateX(0);
-}
-
-/* Burst flash at 0 */
-.countdown-burst {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  pointer-events: none;
-  background: radial-gradient(circle at center, rgba(255,255,255,0.7) 0%, rgba(225, 29, 72, 0.4) 35%, transparent 70%);
-  animation: countdownBurst 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes countdownBurst {
-  0% { transform: scale(0.1); opacity: 1; }
-  100% { transform: scale(3); opacity: 0; }
+/* Progress bar fill with glowing gradient */
+.loading-bar-fill {
+  background: linear-gradient(90deg, #e11d48 0%, #f59e0b 55%, #10b981 100%);
+  transform-origin: left;
+  border-radius: 2px;
+  height: 100%;
+  width: 100%;
+  transform: scaleX(0);
+  box-shadow: 0 0 12px rgba(225, 29, 72, 0.7);
+  transition: transform 0.05s linear;
 }
 
 

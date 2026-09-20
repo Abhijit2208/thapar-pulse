@@ -96,28 +96,17 @@
   </div>
 
   <!-- ======================================================================
-       0.5 COUNTDOWN LAUNCH SEQUENCE OVERLAY
+       0.5 COUNTDOWN LAUNCH SEQUENCE OVERLAY (EDITORIAL MINIMALIST LOADER)
        ====================================================================== -->
-  <div class="countdown-overlay" id="countdown-overlay">
-    <canvas id="countdown-particles-canvas"></canvas>
-    <div class="countdown-orb countdown-orb-1"></div>
-    <div class="countdown-orb countdown-orb-2"></div>
-    <div class="countdown-content">
-      <div class="countdown-ring-wrap">
-        <svg class="countdown-ring-svg" viewBox="0 0 200 200">
-          <circle class="countdown-ring-bg" cx="100" cy="100" r="88"></circle>
-          <circle class="countdown-ring-progress" id="countdown-ring" cx="100" cy="100" r="88"></circle>
-        </svg>
-        <div class="countdown-number" id="countdown-number">10</div>
+  <div class="loading-screen" id="countdown-overlay">
+    <div class="loading-grain-overlay"></div>
+    <div class="loading-center-content" id="loading-center-content">
+      <span class="loading-counter" id="countdown-number">10</span>
+      <div class="loading-brand-wrap" id="loading-brand">
+        <span class="loading-brand-text">THAPAR PULSE // CAMPUS OS</span>
       </div>
-      <h2 class="countdown-title" id="countdown-title">Initializing ThaparPulse...</h2>
-      <p class="countdown-subtitle" id="countdown-subtitle">Preparing your campus dashboard</p>
-      <div class="countdown-steps" id="countdown-steps">
-        <div class="countdown-step active" id="cs-auth">🔐 Authentication verified</div>
-        <div class="countdown-step" id="cs-profile">👤 Loading profile data</div>
-        <div class="countdown-step" id="cs-attendance">📊 Syncing attendance records</div>
-        <div class="countdown-step" id="cs-timetable">📅 Fetching timetable schedule</div>
-        <div class="countdown-step" id="cs-modules">⚡ Activating all modules</div>
+      <div class="loading-bar-track" id="loading-bar-track">
+        <div class="loading-bar-fill" id="countdown-bar-fill"></div>
       </div>
     </div>
   </div>
